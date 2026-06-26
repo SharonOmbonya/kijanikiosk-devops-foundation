@@ -1,0 +1,32 @@
+Starting KijaniKiosk
+Phase 1: Pre-provisioning state acknowledged
+# System may already contain users, groups, UFW rules, systemd units
+kk-api already exists
+kk-payments already exists
+kk-logs already exists
+Group kijanikiosk already exists
+Directories created
+ACL configured
+Backing up 'user.rules' to '/etc/ufw/user.rules.20260624_181034'
+Backing up 'before.rules' to '/etc/ufw/before.rules.20260624_181034'
+Backing up 'after.rules' to '/etc/ufw/after.rules.20260624_181034'
+Backing up 'user6.rules' to '/etc/ufw/user6.rules.20260624_181034'
+Backing up 'before6.rules' to '/etc/ufw/before6.rules.20260624_181034'
+Backing up 'after6.rules' to '/etc/ufw/after6.rules.20260624_181034'
+
+Default incoming policy changed to 'deny'
+(be sure to update your rules accordingly)
+Default outgoing policy changed to 'allow'
+(be sure to update your rules accordingly)
+Rules updated
+Rules updated (v6)
+Rules updated
+Rules updated (v6)
+Rules updated
+Rules updated
+Rules updated (v6)
+Firewall configured
+systemd units deployed
+ Logging configuration
+Health check written
+ Provisioning Complete 
