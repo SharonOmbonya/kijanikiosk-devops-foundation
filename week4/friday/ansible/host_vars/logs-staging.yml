@@ -1,0 +1,5 @@
+---
+service_name: kk-logs
+service_dir: /opt/kijanikiosk/logs
+exec_start: /usr/bin/node /opt/kijanikiosk/logs/server.js
+service_port: 5000

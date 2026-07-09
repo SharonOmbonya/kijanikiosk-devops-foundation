@@ -1,0 +1,19 @@
+{{ shared_log_dir }}/*.log {
+    su {{ log_user }} {{ service_group }}
+
+    daily
+    missingok
+    rotate {{ log_rotate_count }}
+
+    compress
+    delaycompress
+    notifempty
+
+    create 640 {{ log_user }} {{ service_group }}
+
+    sharedscripts
+
+    postrotate
+        systemctl reload {{ log_service }}.service 2>/dev/null || true
+    endscript
+}

@@ -1,0 +1,75 @@
+[Unit]
+Description=KijaniKiosk {{ service_name }} Service
+After=network-online.target
+Wants=network-online.target
+
+{% if service_name == "kk-payments" %}
+After=kk-api.service
+Wants=kk-api.service
+{% endif %}
+
+[Service]
+Type=simple
+
+User={{ service_name }}
+Group={{ service_group }}
+
+EnvironmentFile={{ config_dir }}/payments-api.env
+WorkingDirectory={{ service_dir }}
+
+ExecStart={{ exec_start }}
+
+Restart=on-failure
+RestartSec=5s
+
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+TimeoutStartSec=30s
+TimeoutStopSec=30s
+
+Environment="NODE_ENV=production"
+Environment="PORT={{ service_port }}"
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ service_name }}
+
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+
+ProtectSystem=strict
+ProtectHome=true
+
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectClock=true
+
+CapabilityBoundingSet=
+
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+
+ProtectProc=invisible
+ProcSubset=pid
+
+UMask=0077
+RemoveIPC=true
+
+ReadWritePaths={{ service_dir }}
+ReadWritePaths={{ shared_log_dir }}
+ReadWritePaths={{ config_dir }}
+
+[Install]
+WantedBy=multi-user.target
