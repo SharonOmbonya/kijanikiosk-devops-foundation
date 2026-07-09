@@ -1,0 +1,197 @@
+Starting KijaniKiosk IaC pipeline
+Applying Terraform
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "endpoint" is deprecated. Use parameter "endpoints.s3"
+[33m│[0m [0minstead.
+[33m╵[0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "force_path_style" is deprecated. Use parameter
+[33m│[0m [0m"use_path_style" instead.
+[33m╵[0m[0m
+[0m[1mdata.external.payments_ip: Reading...[0m[0m
+[0m[1mdata.external.api_ip: Reading...[0m[0m
+[0m[1mdata.external.logs_ip: Reading...[0m[0m
+[0m[1mdata.external.logs_ip: Read complete after 0s [id=-][0m
+[0m[1mdata.external.api_ip: Read complete after 0s [id=-][0m
+[0m[1mdata.external.payments_ip: Read complete after 0s [id=-][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+
+Terraform will perform the following actions:
+
+[1m  # module.app_servers["api"].null_resource.server[0m will be created
+[0m  [32m+[0m[0m resource "null_resource" "server" {
+      [32m+[0m[0m id       = (known after apply)
+      [32m+[0m[0m triggers = {
+          [32m+[0m[0m "ip"   = "10.181.11.30"
+          [32m+[0m[0m "name" = "api"
+        }
+    }
+
+[1m  # module.app_servers["logs"].null_resource.server[0m will be created
+[0m  [32m+[0m[0m resource "null_resource" "server" {
+      [32m+[0m[0m id       = (known after apply)
+      [32m+[0m[0m triggers = {
+          [32m+[0m[0m "ip"   = "10.181.11.177"
+          [32m+[0m[0m "name" = "logs"
+        }
+    }
+
+[1m  # module.app_servers["payments"].null_resource.server[0m will be created
+[0m  [32m+[0m[0m resource "null_resource" "server" {
+      [32m+[0m[0m id       = (known after apply)
+      [32m+[0m[0m triggers = {
+          [32m+[0m[0m "ip"   = "10.181.11.77"
+          [32m+[0m[0m "name" = "payments"
+        }
+    }
+
+[1mPlan:[0m [0m3 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  [32m+[0m[0m api_server_ip      = "10.181.11.30"
+  [32m+[0m[0m logs_server_ip     = "10.181.11.177"
+  [32m+[0m[0m payments_server_ip = "10.181.11.77"
+  [32m+[0m[0m ssh_commands       = {
+      [32m+[0m[0m api      = "ssh ubuntu@10.181.11.30"
+      [32m+[0m[0m logs     = "ssh ubuntu@10.181.11.177"
+      [32m+[0m[0m payments = "ssh ubuntu@10.181.11.77"
+    }
+[0m[1mmodule.app_servers["logs"].null_resource.server: Creating...[0m[0m
+[0m[1mmodule.app_servers["api"].null_resource.server: Creating...[0m[0m
+[0m[1mmodule.app_servers["payments"].null_resource.server: Creating...[0m[0m
+[0m[1mmodule.app_servers["logs"].null_resource.server: Creation complete after 0s [id=7039971425116914756][0m
+[0m[1mmodule.app_servers["payments"].null_resource.server: Creation complete after 0s [id=4711109728974780570][0m
+[0m[1mmodule.app_servers["api"].null_resource.server: Creation complete after 0s [id=3978296137703365762][0m
+[0m[1m[32m
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mapi_server_ip = "10.181.11.30"
+logs_server_ip = "10.181.11.177"
+payments_server_ip = "10.181.11.77"
+ssh_commands = {
+  "api" = "ssh ubuntu@10.181.11.30"
+  "logs" = "ssh ubuntu@10.181.11.177"
+  "payments" = "ssh ubuntu@10.181.11.77"
+}
+Collecting VM IPs
+Generating inventory
+Running Ansible
+
+PLAY [Configure KijaniKiosk servers] *******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [logs-staging]
+ok: [payments-staging]
+ok: [api-staging]
+
+TASK [Update apt cache] ********************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Install required packages] ***********************************************
+ok: [payments-staging]
+ok: [logs-staging]
+ok: [api-staging]
+
+TASK [Create kijanikiosk system group] *****************************************
+ok: [logs-staging]
+ok: [api-staging]
+ok: [payments-staging]
+
+TASK [Create service account] **************************************************
+ok: [api-staging] => (item=kk-api)
+ok: [logs-staging] => (item=kk-api)
+ok: [payments-staging] => (item=kk-api)
+ok: [api-staging] => (item=kk-payments)
+ok: [logs-staging] => (item=kk-payments)
+ok: [payments-staging] => (item=kk-payments)
+ok: [api-staging] => (item=kk-logs)
+ok: [logs-staging] => (item=kk-logs)
+ok: [payments-staging] => (item=kk-logs)
+
+TASK [Create application directory tree] ***************************************
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'group': 'kk-api', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'group': 'kk-api', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'group': 'kk-api', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'group': 'kk-payments', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'group': 'kk-payments', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'group': 'kk-payments', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'group': 'kk-logs', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'group': 'kk-logs', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'group': 'kk-logs', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'group': 'kijanikiosk', 'mode': '2770'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'group': 'kijanikiosk', 'mode': '2770'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'group': 'kijanikiosk', 'mode': '2770'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'group': 'kijanikiosk', 'mode': '0750'})
+
+TASK [Deploy payments environment file] ****************************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+TASK [Deploy systemd unit file] ************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Enable and start service] ************************************************
+ok: [logs-staging]
+ok: [api-staging]
+ok: [payments-staging]
+
+TASK [Set ufw default deny incoming] *******************************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+TASK [Allow SSH] ***************************************************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+TASK [Allow service port on loopback only] *************************************
+ok: [logs-staging]
+ok: [api-staging]
+ok: [payments-staging]
+
+TASK [Create persistent journal directory] *************************************
+ok: [logs-staging]
+ok: [payments-staging]
+ok: [api-staging]
+
+TASK [Create journald configuration directory] *********************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+TASK [Deploy journald configuration] *******************************************
+ok: [logs-staging]
+ok: [api-staging]
+ok: [payments-staging]
+
+TASK [Deploy logrotate configuration] ******************************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+PLAY RECAP *********************************************************************
+api-staging                : ok=16   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+logs-staging               : ok=16   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+payments-staging           : ok=16   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+Pipeline complete
