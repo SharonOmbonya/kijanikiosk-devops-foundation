@@ -1,0 +1,166 @@
+pipeline {
+
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-v /tmp:/tmp'
+        }
+    }
+
+    environment {
+        NODE_ENV         = 'test'
+        BUILD_DIR        = 'dist'
+        APP_NAME         = 'kijanikiosk-payments'
+        NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'        PKG_VERSION      = ''
+        GIT_SHORT        = ''
+        ARTIFACT_VERSION = ''
+    }
+
+    options {
+        timeout(time: 15, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
+
+    stages {
+
+        stage('Lint') {
+            steps {
+                echo "Running lint checks for ${APP_NAME}..."
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Installing dependencies for ${APP_NAME}..."
+                sh 'npm ci'
+
+                echo "Building application..."
+                sh 'npm run build'
+
+                echo "Verifying build output..."
+
+                sh '''
+                    set -e
+                    test -d "${BUILD_DIR}" || {
+                        echo "ERROR: build directory not found"
+                        exit 1
+                    }
+
+                    echo "Build output: $(ls ${BUILD_DIR} | wc -l) files in ${BUILD_DIR}/"
+                '''
+            }
+        }
+
+        stage('Verify') {
+            parallel {
+
+                stage('Test') {
+                    steps {
+                        echo "Running tests for ${APP_NAME}..."
+
+                        sh '''
+                            set -e
+                            npm test
+                        '''
+                    }
+
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'test-results/*.xml'
+                        }
+                    }
+                }
+
+                stage('Security Audit') {
+                    steps {
+                        echo "Running security audit..."
+
+                        sh '''
+                            set -e
+                            npm audit --audit-level=high
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: "${BUILD_DIR}/**",
+                                 fingerprint: true,
+                                 onlyIfSuccessful: true
+            }
+        }
+
+        stage('Publish') {
+            steps {
+
+                script {
+                    PKG_VERSION = sh(
+                        script: "node -p \"require('./package.json').version\"",
+                        returnStdout: true
+                    ).trim()
+
+                    GIT_SHORT = sh(
+                        script: "git rev-parse --short HEAD",
+                        returnStdout: true
+                    ).trim()
+
+                    ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
+                }
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-credentials',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+
+                    sh '''
+                        set -e
+
+                        npm version ${ARTIFACT_VERSION} --no-git-tag-version
+
+                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
+
+                        trap "rm -f .npmrc" EXIT
+
+                        cat > .npmrc << NPMRC
+registry=${NEXUS_URL}
+//${NEXUS_URL#http://}/:_authToken=${NEXUS_TOKEN}
+NPMRC
+
+                        npm publish
+                    '''
+                }
+            }
+        }
+    }
+
+
+    post {
+
+        always {
+            junit allowEmptyResults: true,
+                  testResults: 'test-results/*.xml'
+
+            cleanWs()
+        }
+
+        success {
+            echo "Pipeline succeeded: ${APP_NAME} version ${ARTIFACT_VERSION}"
+            echo "Artifact URL: ${NEXUS_URL}"
+        }
+
+        failure {
+            echo "Pipeline FAILED: ${APP_NAME} build ${BUILD_NUMBER}"
+            echo "Check logs: ${BUILD_URL}"
+        }
+
+        changed {
+            echo "Build status changed to ${currentBuild.currentResult}"
+        }
+    }
+}
