@@ -130,7 +130,8 @@ pipeline {
 
                         cat > .npmrc << NPMRC
 registry=${NEXUS_URL}
-//${NEXUS_URL#http://}/:_authToken=${NEXUS_TOKEN}
+//${NEXUS_URL#http://}:_auth=${AUTH}
+//${NEXUS_URL#http://}:always-auth=true
 NPMRC
 
                         npm publish
