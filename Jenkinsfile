@@ -2,7 +2,7 @@ pipeline {
 
     agent {
         docker {
-            image 'node:18-alpine-git'
+            image 'node:18-alpine'
             args '-v /tmp:/tmp'
         }
     }
