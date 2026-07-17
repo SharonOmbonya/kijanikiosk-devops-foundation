@@ -97,48 +97,48 @@ pipeline {
         }
 
         stage('Publish') {
-            steps {
+    steps {
 
-                script {
-                    PKG_VERSION = sh(
-                        script: "node -p \"require('./package.json').version\"",
-                        returnStdout: true
-                    ).trim()
+        script {
+            def PKG_VERSION = sh(
+                script: "node -p \"require('./package.json').version\"",
+                returnStdout: true
+            ).trim()
 
-                    GIT_SHORT = sh(
-                        script: "echo ${GIT_COMMIT} | cut -c1-7",
-                        returnStdout: true
-                    ).trim()
+            def GIT_SHORT = sh(
+                script: "echo ${GIT_COMMIT} | cut -c1-7",
+                returnStdout: true
+            ).trim()
 
-                    ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
-                }
+            env.ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
+        }
 
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-credentials',
-                    usernameVariable: 'NEXUS_USER',
-                    passwordVariable: 'NEXUS_PASS'
-                )]) {
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASS'
+        )]) {
 
-                    sh '''
-                        set -e
+            sh '''
+                set -e
 
-                        npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
 
-                        trap "rm -f .npmrc" EXIT
+                trap "rm -f .npmrc" EXIT
 
-                        cat > .npmrc << NPMRC
+                cat > .npmrc << NPMRC
 registry=${NEXUS_URL}
-//${NEXUS_URL#http://}:_auth=${AUTH}
-//${NEXUS_URL#http://}:always-auth=true
+//${NEXUS_URL#http://}/:_auth=${NEXUS_TOKEN}
+always-auth=true
 NPMRC
 
-                        npm publish
-                    '''
-                }
-            }
+                npm publish
+            '''
         }
+    }
+}
     }
 
 
