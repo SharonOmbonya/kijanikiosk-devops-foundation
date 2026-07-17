@@ -35,8 +35,11 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Installing dependencies for ${APP_NAME}..."
-                sh 'npm ci'
-
+                sh '''
+                    apk add --no-cache git
+                    npm ci
+                '''
+                
                 echo "Building application..."
                 sh 'npm run build'
 
