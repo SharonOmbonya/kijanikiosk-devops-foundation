@@ -125,7 +125,7 @@ pipeline {
                     AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
 
                     cat > .npmrc <<EOF
-registry=${NEXUS_REGISTRY}
+registry=$NEXUS_URL/repository/npm-kijanikiosk/
 //${NEXUS_HOST}/repository/npm-kijanikiosk/:_auth=$AUTH
 //${NEXUS_HOST}/repository/npm-kijanikiosk/:always-auth=true
 EOF
