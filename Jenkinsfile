@@ -100,6 +100,20 @@ pipeline {
 
      stage('Publish') {
     steps {
+        script {
+            env.PKG_VERSION = sh(
+                script: "node -p \"require('./package.json').version\"",
+                returnStdout: true
+            ).trim()
+
+            env.GIT_SHORT = sh(
+                script: "git rev-parse --short HEAD",
+                returnStdout: true
+            ).trim()
+
+            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+        }
+
         withCredentials([usernamePassword(
             credentialsId: 'nexus-credentials',
             usernameVariable: 'NEXUS_USER',
@@ -108,21 +122,21 @@ pipeline {
             sh '''
                 set -e
 
-                # Generate base64 token
-                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
+                trap "rm -f .npmrc" EXIT
 
-                # Create temporary .npmrc
-                cat > .npmrc << NPMRC
-registry=${NEXUS_REGISTRY}
-//${NEXUS_HOST}/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
-//${NEXUS_HOST}/repository/npm-kijanikiosk/:always-auth=true
-NPMRC
+                NEXUS_TOKEN=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
 
-                # Publish
-                npm publish
+                NEXUS_AUTH_PATH=$(echo "$NEXUS_URL" | sed 's#http://##')
 
-                # Clean up
-                rm -f .npmrc
+                cat > .npmrc <<EOF
+registry=${NEXUS_URL}
+//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}:always-auth=true
+EOF
+
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+
+                npm publish --registry=${NEXUS_URL}
             '''
         }
     }
