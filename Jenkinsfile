@@ -11,8 +11,7 @@ pipeline {
         NODE_ENV         = 'test'
         BUILD_DIR        = 'dist'
         APP_NAME         = 'kijanikiosk-payments'
-        NEXUS_REGISTRY   = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
-        NEXUS_URL        = 'http://192.168.100.33:8081'
+        NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'        
         PKG_VERSION      = ''
         GIT_SHORT        = ''
         ARTIFACT_VERSION = ''
@@ -98,46 +97,48 @@ pipeline {
         }
 
         stage('Publish') {
-    steps {
+            steps {
 
-        script {
-            def PKG_VERSION = sh(
-                script: "node -p \"require('./package.json').version\"",
-                returnStdout: true
-            ).trim()
+                script {
+                    PKG_VERSION = sh(
+                        script: "node -p \"require('./package.json').version\"",
+                        returnStdout: true
+                    ).trim()
 
-            def GIT_SHORT = sh(
-                script: "echo ${GIT_COMMIT} | cut -c1-7",
-                returnStdout: true
-            ).trim()
+                    GIT_SHORT = sh(
+                        script: "echo ${GIT_COMMIT} | cut -c1-7",
+                        returnStdout: true
+                    ).trim()
 
-            env.ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
+                    ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
+                }
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-credentials',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+
+                    sh '''
+                        set -e
+
+                        npm version ${ARTIFACT_VERSION} --no-git-tag-version
+
+                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
+
+                        trap "rm -f .npmrc" EXIT
+
+                        cat > .npmrc << NPMRC
+registry=${NEXUS_URL}
+//${NEXUS_URL#http://}:_auth=${AUTH}
+//${NEXUS_URL#http://}:always-auth=true
+NPMRC
+
+                        npm publish
+                    '''
+                }
+            }
         }
-
-        withCredentials([usernamePassword(
-            credentialsId: 'nexus-credentials',
-            usernameVariable: 'NEXUS_USER',
-            passwordVariable: 'NEXUS_PASS'
-        )]) {
-
-            sh '''
-                set -e
-
-                    AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
-
-                    cat > .npmrc <<EOF
-registry=${NEXUS_REGISTRY}
-${NEXUS_REGISTRY}:_auth=$AUTH
-${NEXUS_REGISTRY}:always-auth=true
-EOF
-
-                    npm publish
-
-                    rm -f .npmrc
-            '''
-        }
-    }
-}
     }
 
 
