@@ -130,7 +130,7 @@ pipeline {
 
                 cat > .npmrc << NPMRC
 registry=${NEXUS_URL}
-//${NEXUS_URL#http://}/:_auth=${NEXUS_TOKEN}
+_auth=${AUTH}
 always-auth=true
 NPMRC
 
