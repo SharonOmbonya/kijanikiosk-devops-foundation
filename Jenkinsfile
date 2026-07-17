@@ -8,13 +8,15 @@ pipeline {
     }
 
     environment {
-        NODE_ENV         = 'test'
-        BUILD_DIR        = 'dist'
-        APP_NAME         = 'kijanikiosk-payments'
-        NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'        
-        PKG_VERSION      = ''
-        GIT_SHORT        = ''
-        ARTIFACT_VERSION = ''
+    NODE_ENV  = 'test'
+    BUILD_DIR = 'dist'
+    APP_NAME  = 'kijanikiosk-payments'
+
+    PKG_VERSION      = ''
+    GIT_SHORT        = ''
+    ARTIFACT_VERSION = ''
+
+    NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
     }
 
     options {
@@ -96,52 +98,37 @@ pipeline {
             }
         }
 
-        stage('Publish') {
-            steps {
+     stage('Publish') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASS'
+        )]) {
+            sh '''
+                set -e
 
-                script {
-                    PKG_VERSION = sh(
-                        script: "node -p \"require('./package.json').version\"",
-                        returnStdout: true
-                    ).trim()
+                # Generate base64 token
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
 
-                    GIT_SHORT = sh(
-                        script: "echo ${GIT_COMMIT} | cut -c1-7",
-                        returnStdout: true
-                    ).trim()
-
-                    ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
-                }
-
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-credentials',
-                    usernameVariable: 'NEXUS_USER',
-                    passwordVariable: 'NEXUS_PASS'
-                )]) {
-
-                    sh '''
-                        set -e
-
-                        npm version ${ARTIFACT_VERSION} --no-git-tag-version
-
-                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
-
-                        trap "rm -f .npmrc" EXIT
-
-                        cat > .npmrc << NPMRC
-registry=${NEXUS_URL}
-//${NEXUS_URL#http://}:_auth=${AUTH}
-//${NEXUS_URL#http://}:always-auth=true
+                # Create temporary .npmrc
+                cat > .npmrc << NPMRC
+registry=${NEXUS_REGISTRY}
+//${NEXUS_HOST}/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
+//${NEXUS_HOST}/repository/npm-kijanikiosk/:always-auth=true
 NPMRC
 
-                        npm publish
-                    '''
-                }
-            }
+                # Publish
+                npm publish
+
+                # Clean up
+                rm -f .npmrc
+            '''
         }
     }
+}
 
-
+}
     post {
 
         always {
