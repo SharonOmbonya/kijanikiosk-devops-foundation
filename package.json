@@ -1,18 +1,15 @@
 {
   "name": "kijanikiosk-payments",
   "version": "1.0.0",
-  "description": "KijaniKiosk payments CI pipeline project",
+  "description": "KijaniKiosk payments service",
   "main": "index.js",
   "scripts": {
     "lint": "echo 'Lint checks passed'",
     "test": "echo 'Tests passed'",
-    "build": "echo 'Build completed successfully'"
+    "security:audit": "npm audit --audit-level=high",
+    "build": "mkdir -p dist && echo 'KijaniKiosk payment build artifact' > dist/index.txt"
   },
-  "keywords": [
-    "kijanikiosk",
-    "payments",
-    "ci"
-  ],
+  "keywords": [],
   "author": "Sharon Ombonya",
   "license": "ISC"
 }
