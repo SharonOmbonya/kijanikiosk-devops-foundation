@@ -122,19 +122,17 @@ pipeline {
             sh '''
                 set -e
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                    AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
 
-                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
+                    cat > .npmrc <<EOF
+registry=${NEXUS_REGISTRY}
+//${NEXUS_HOST}/repository/npm-kijanikiosk/:_auth=$AUTH
+//${NEXUS_HOST}/repository/npm-kijanikiosk/:always-auth=true
+EOF
 
-                trap "rm -f .npmrc" EXIT
+                    npm publish
 
-                cat > .npmrc << NPMRC
-registry=${NEXUS_URL}
-_auth=${AUTH}
-always-auth=true
-NPMRC
-
-                npm publish
+                    rm -f .npmrc
             '''
         }
     }
