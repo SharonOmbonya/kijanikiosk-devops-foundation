@@ -2,7 +2,7 @@ pipeline {
 
     agent {
         docker {
-            image 'node:18-alpine'
+            image 'node:18-alpine-git'
             args '-v /tmp:/tmp'
         }
     }
@@ -35,11 +35,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Installing dependencies for ${APP_NAME}..."
-                sh '''
-                    apk add --no-cache git
-                    npm ci
-                '''
-                
+                sh 'npm ci'
+
                 echo "Building application..."
                 sh 'npm run build'
 
@@ -109,7 +106,7 @@ pipeline {
                     ).trim()
 
                     GIT_SHORT = sh(
-                        script: "git rev-parse --short HEAD",
+                        script: "echo ${GIT_COMMIT} | cut -c1-7",
                         returnStdout: true
                     ).trim()
 
