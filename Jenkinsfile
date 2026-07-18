@@ -101,8 +101,7 @@ pipeline {
      stage('Publish') {
     steps {
         script {
-            sh 'apk add --no-cache git'
-
+        
             env.PKG_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
@@ -126,15 +125,14 @@ pipeline {
 
                 trap "rm -f .npmrc" EXIT
 
-                NEXUS_TOKEN=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                NEXUS_AUTH_PATH=$(echo "$NEXUS_URL" | sed 's#http://##')
-
-                cat > .npmrc <<EOF
+                cat > .npmrc <<NPMRC
 registry=${NEXUS_URL}
 //${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
 //${NEXUS_AUTH_PATH}:always-auth=true
-EOF
+NPMRC
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
