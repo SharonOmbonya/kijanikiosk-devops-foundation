@@ -17,6 +17,8 @@ pipeline {
     ARTIFACT_VERSION = ''
 
     NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.100.33:8081/repository/npm-kijanikiosk/'
+
     }
 
     options {
