@@ -16,8 +16,9 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = "${env.NEXUS_URL}"
-    NEXUS_AUTH_PATH = "${env.NEXUS_AUTH_PATH}"
+    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
+
     }
 
     options {
@@ -108,8 +109,10 @@ pipeline {
                 returnStdout: true
             ).trim()
 
-            env.GIT_SHORT  = sh(script: 'git rev-parse --short HEAD',
-                    returnStdout: true).trim()
+            env.GIT_SHORT = sh(
+                script: "git rev-parse --short HEAD",
+                returnStdout: true
+            ).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
@@ -128,7 +131,7 @@ pipeline {
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH.replaceAll('^http[s]?:', '')}:_auth=${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
