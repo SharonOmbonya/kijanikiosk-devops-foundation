@@ -156,8 +156,8 @@ EOF
         }
 
         success {
-            echo "Pipeline succeeded: ${APP_NAME} version ${ARTIFACT_VERSION}"
-            echo "Artifact URL: ${NEXUS_URL}"
+            echo "Pipeline succeeded: ${env.APP_NAME} version ${env.ARTIFACT_VERSION}"
+            echo "Artifact URL: ${env.NEXUS_URL}"
         }
 
         failure {
