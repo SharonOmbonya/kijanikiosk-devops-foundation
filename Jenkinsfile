@@ -139,7 +139,7 @@ pipeline {
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                npm publish --registry=${NEXUS_URL}
+                npm publish --registry=$http://192.168.0.16:8081/repository/npm-kijanikiosk/
             '''
         }
     }
