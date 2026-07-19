@@ -17,7 +17,7 @@ pipeline {
     ARTIFACT_VERSION = ''
 
     NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk/'
 
     }
 
@@ -128,8 +128,8 @@ pipeline {
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
-//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
+//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}:always-auth=true
 EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
