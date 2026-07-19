@@ -127,7 +127,7 @@ pipeline {
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH.replaceAll('^http[s]?:', '')}:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
