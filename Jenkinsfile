@@ -16,8 +16,7 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-   environment {
-}
+    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
     NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
 
     }
@@ -133,7 +132,7 @@ pipeline {
                 cat > .npmrc <<EOF
 registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
 //192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
-//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
+always-auth=true
 EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
