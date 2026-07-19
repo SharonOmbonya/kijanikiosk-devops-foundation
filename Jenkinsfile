@@ -16,8 +16,8 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = "${env.NEXUS_URL}"
-    NEXUS_AUTH_PATH = "${env.NEXUS_AUTH_PATH}"
+    NEXUS_URL = credentials('nexus-url')
+    
     }
 
     options {
