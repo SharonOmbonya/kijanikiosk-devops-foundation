@@ -126,7 +126,7 @@ pipeline {
 
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                cat > .npmrc <<<<EOF
+                cat > .npmrc <<EOF
 registry=${NEXUS_URL}
 //${NEXUS_AUTH_PATH}:username=${NEXUS_USER}
 //${NEXUS_AUTH_PATH}:_password=$(echo -n "${NEXUS_PASS}" | base64 | tr -d '\n')
