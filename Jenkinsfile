@@ -101,88 +101,50 @@ pipeline {
         }
 
      stage('Publish') {
-
     steps {
-
         script {
-
+        
             env.PKG_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
             ).trim()
 
-
             env.GIT_SHORT = sh(
-                script: "git rev-parse --short HEAD",
-                returnStdout: true
-            ).trim()
+    script: 'git rev-parse --short HEAD',
+    returnStdout: true
+).trim()
 
-
-            env.ARTIFACT_VERSION =
-                "${env.PKG_VERSION}-${env.GIT_SHORT}"
-
-
-            echo "Publishing version ${env.ARTIFACT_VERSION}"
-
-
-            sh """
-                npm version ${env.ARTIFACT_VERSION} \
-                --no-git-tag-version
-            """
-
+            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
 
-
-
         withCredentials([usernamePassword(
-
             credentialsId: 'nexus-credentials',
-
             usernameVariable: 'NEXUS_USER',
-
             passwordVariable: 'NEXUS_PASS'
-
         )]) {
-
-
             sh '''
-
                 set -e
-
 
                 trap "rm -f .npmrc" EXIT
 
-
-
-                AUTH=$(printf "%s:%s" \
-                "$NEXUS_USER" \
-                "$NEXUS_PASS" | base64 | tr -d '\\n')
-
-
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
-
 registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
-
 //192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${AUTH}
-
-//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
-
+always-auth=true
 EOF
 
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                echo "NPM registry configured"
-
-
-
-                npm publish \
-                --registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
-
-
+                npm publish --registry=${NEXUS_URL}
             '''
         }
     }
+}
+
 }
     post {
 
