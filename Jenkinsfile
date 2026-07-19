@@ -2,7 +2,7 @@ pipeline {
 
     agent {
         docker {
-            image 'node:18-alpine'
+            image 'node:18.20.8-bookworm'
             args '-v /tmp:/tmp'
         }
     }
@@ -109,7 +109,10 @@ pipeline {
                 returnStdout: true
             ).trim()
 
-            env.GIT_SHORT = "${env.GIT_COMMIT}".take(7)
+            env.GIT_SHORT = sh(
+                script: 'git rev-parse --short HEAD',
+                returnStdout: true
+            ).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
