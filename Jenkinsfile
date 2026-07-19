@@ -17,7 +17,7 @@ pipeline {
     ARTIFACT_VERSION = ''
 
     NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
 
     }
 
@@ -110,9 +110,9 @@ pipeline {
             ).trim()
 
             env.GIT_SHORT = sh(
-                script: 'git rev-parse --short HEAD',
-                returnStdout: true
-            ).trim()
+    script: 'git rev-parse --short HEAD',
+    returnStdout: true
+).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
@@ -127,17 +127,13 @@ pipeline {
 
                 trap "rm -f .npmrc" EXIT
 
-            AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d "\\n")
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${AUTH}
+//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
-
-                
-                echo ".npmrc created:"
-                cat .npmrc | sed 's/_auth=.*/_auth=***MASKED***/'
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
