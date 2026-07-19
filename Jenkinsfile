@@ -109,11 +109,7 @@ pipeline {
                 returnStdout: true
             ).trim()
 
-            env.GIT_SHORT = sh(
-                script: "git rev-parse --short HEAD",
-                returnStdout: true
-            ).trim()
-
+            env.GIT_SHORT = "${env.GIT_COMMIT}".take(7)
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
