@@ -131,7 +131,7 @@ pipeline {
 
                 cat > .npmrc <<EOF
 registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
-//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${AUTH}
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
