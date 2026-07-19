@@ -128,11 +128,10 @@ pipeline {
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}:username=${NEXUS_USER}
-//${NEXUS_AUTH_PATH}:_password=$(echo -n "${NEXUS_PASS}" | base64 | tr -d '\n')
-//${NEXUS_AUTH_PATH}:email=ci@example.com
-//${NEXUS_AUTH_PATH}:always-auth=true
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
+//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
 EOF
+
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
