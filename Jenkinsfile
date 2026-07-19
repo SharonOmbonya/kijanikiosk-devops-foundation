@@ -125,18 +125,19 @@ pipeline {
 
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                cat > .npmrc <<EOF
-registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
-always-auth=true
-EOF
+               # 2. Write the configuration explicitly formatted for npm
+                        echo "registry=${NEXUS_URL}" > .npmrc
+                        echo "//${NEXUS_AUTH_PATH.replaceAll('^http[s]?:', '')}:_auth=${NEXUS_TOKEN}" >> .npmrc
+                        echo "always-auth=true" >> .npmrc
 
-                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+                        echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                        # 3. Update the package version
+                        npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                npm publish --registry=${NEXUS_URL}
-            '''
+                        # 4. Publish (Registry is picked up automatically from .npmrc)
+                        npm publish
+                    '''
         }
     }
 }
