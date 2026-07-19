@@ -16,7 +16,9 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+   environment {
+    NEXUS_CREDENTIALS = credentials('nexus-credentials')
+}
     NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
 
     }
@@ -127,19 +129,19 @@ pipeline {
 
                 trap "rm -f .npmrc" EXIT
 
-                # Create base64 token
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                # Write .npmrc using printf
-                printf "registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/\\n" > .npmrc
-                printf "//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=%s\\n" "${NEXUS_TOKEN}" >> .npmrc
-                printf "always-auth=true\\n" >> .npmrc
+                cat > .npmrc <<EOF
+registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
+//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
+EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                npm publish --registry=$http://192.168.0.16:8081/repository/npm-kijanikiosk/
+                npm publish --registry=${NEXUS_URL}
             '''
         }
     }
