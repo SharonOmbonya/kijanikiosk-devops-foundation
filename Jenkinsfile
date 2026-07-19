@@ -127,13 +127,17 @@ pipeline {
 
                 trap "rm -f .npmrc" EXIT
 
-                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
+            AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d "\\n")
 
                 cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${AUTH}
 always-auth=true
 EOF
+
+                
+                echo ".npmrc created:"
+                cat .npmrc | sed 's/_auth=.*/_auth=***MASKED***/'
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
