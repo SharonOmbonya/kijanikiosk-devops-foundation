@@ -22,7 +22,7 @@ pipeline {
     }
 
     options {
-        timeout(time: 15, unit: 'MINUTES')
+        timeout(time: 10, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
@@ -130,8 +130,8 @@ pipeline {
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
-registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}:_auth=${NEXUS_TOKEN}
+registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${AUTH}
 always-auth=true
 EOF
 
