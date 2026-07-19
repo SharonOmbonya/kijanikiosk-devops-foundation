@@ -17,7 +17,6 @@ pipeline {
     ARTIFACT_VERSION = ''
 
    environment {
-    NEXUS_CREDENTIALS = credentials('nexus-credentials')
 }
     NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
 
