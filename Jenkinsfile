@@ -127,6 +127,9 @@ pipeline {
             ).trim()
 
             echo "ARTIFACT_VERSION=${ARTIFACT_VERSION}"
+            
+            env.ARTIFACT_VERSION = ARTIFACT_VERSION
+
         }
 
         withCredentials([
