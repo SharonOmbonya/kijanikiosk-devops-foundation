@@ -128,10 +128,13 @@ pipeline {
                 returnStdout: true
             ).trim()
             
+    env.PKG_VERSION = pkgVersion
+    env.GIT_SHORT = gitSha
+    env.ARTIFACT_VERSION = "${pkgVersion}-${gitSha}"
 
-            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
-            echo "Artifact version: ${env.ARTIFACT_VERSION}"
-
+    echo "PKG_VERSION=${env.PKG_VERSION}"
+    echo "GIT_SHORT=${env.GIT_SHORT}"
+    echo "ARTIFACT_VERSION=${env.ARTIFACT_VERSION}"
         }
 
         withCredentials([usernamePassword(
