@@ -16,8 +16,8 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL    = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'  
+    NEXUS_URL        = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH  = '192.168.0.16:8081/repository/npm-kijanikiosk'  
     }
 
     options {
@@ -127,6 +127,9 @@ pipeline {
                 returnStdout: true
             ).trim()
 
+            echo "PKG_VERSION=${env.PKG_VERSION}"
+            echo "GIT_SHORT=${env.GIT_SHORT}"
+
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
             echo "Artifact version: ${env.ARTIFACT_VERSION}"
 
@@ -153,7 +156,7 @@ EOF
                 echo "Updating package version to ${ARTIFACT_VERSION}"
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
-                
+
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm publish --registry=${NEXUS_URL}
