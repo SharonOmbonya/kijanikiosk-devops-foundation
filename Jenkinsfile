@@ -119,7 +119,7 @@ pipeline {
         script {
         
             env.PKG_VERSION = sh(
-                script: "node -p \"require('./package.json').version\"",
+                script: "node -e \"console.log(require('./package.json').version)\"",
                 returnStdout: true
             ).trim()
 
