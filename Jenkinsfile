@@ -117,16 +117,15 @@ pipeline {
     steps {
         unstash 'build-output'  
         script {
-        
-            env.PKG_VERSION = sh(
-                script: "node -e \"console.log(require('./package.json').version)\"",
-                returnStdout: true
-            ).trim()
+    def pkgVersion = sh(
+        script: "node -p \"require('./package.json').version\"",
+        returnStdout: true
+    ).trim()
 
-            env.GIT_SHORT = sh(
-                script: 'git rev-parse --short HEAD',
-                returnStdout: true
-            ).trim()
+    def gitSha = sh(
+        script: "git rev-parse --short HEAD",
+        returnStdout: true
+    ).trim()
             
     env.PKG_VERSION = pkgVersion
     env.GIT_SHORT = gitSha
