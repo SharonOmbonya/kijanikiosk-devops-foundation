@@ -16,9 +16,8 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.100.33:8081/repository/npm-kijanikiosk'    }
-
+    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
     options {
         timeout(time: 10, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
