@@ -118,7 +118,7 @@ pipeline {
         unstash 'build-output'
 
         script {
-            ARTIFACT_VERSION = sh(
+            def ARTIFACT_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
             ).trim() + "-" + sh(
