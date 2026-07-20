@@ -115,6 +115,9 @@ pipeline {
      stage('Publish') {
     steps {
         script {
+
+            sh 'cat package.json'
+
         
             env.PKG_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
