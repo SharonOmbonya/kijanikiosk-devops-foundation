@@ -16,10 +16,8 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
-
-    }
+    NEXUS_URL       = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.100.33:8081/repository/npm-kijanikiosk'    }
 
     options {
         timeout(time: 10, unit: 'MINUTES')
@@ -130,8 +128,8 @@ pipeline {
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
-registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
-//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
+registry=${NEXUS_URL}
+//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
