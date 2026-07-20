@@ -112,25 +112,21 @@ pipeline {
             }
         }
 
-     stage('Publish') {
+      stage('Publish') {
     steps {
         script {
-
-            
         
             env.PKG_VERSION = sh(
-            script: 'node -p "require(\'./package.json\').version"',
-            returnStdout: true
-            ).trim()
-
-            env.GIT_SHORT = sh(
-                script: 'git rev-parse --short HEAD',
+                script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
             ).trim()
 
-            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
-            echo "Artifact version: ${env.ARTIFACT_VERSION}"
+            env.GIT_SHORT = sh(
+    script: 'git rev-parse --short HEAD',
+    returnStdout: true
+).trim()
 
+            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
         }
 
         withCredentials([usernamePassword(
@@ -151,13 +147,9 @@ registry=${NEXUS_URL}
 always-auth=true
 EOF
 
-                echo "Updating package version to ${ARTIFACT_VERSION}"
-
-                npm version "${ARTIFACT_VERSION}" \
-                    --no-git-tag-version \
-                    --allow-same-version
-
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
                 npm publish --registry=${NEXUS_URL}
             '''
