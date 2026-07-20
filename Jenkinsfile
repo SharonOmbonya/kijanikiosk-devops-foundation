@@ -112,33 +112,36 @@ pipeline {
     returnStdout: true
 ).trim()
 
-            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
-        }
+env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+echo "DEBUG ARTIFACT_VERSION=${env.ARTIFACT_VERSION}"        
+}
 
         withCredentials([usernamePassword(
             credentialsId: 'nexus-credentials',
             usernameVariable: 'NEXUS_USER',
             passwordVariable: 'NEXUS_PASS'
         )]) {
-            sh '''
-                set -e
+            sh """
+    set -e
 
-                trap "rm -f .npmrc" EXIT
+    trap "rm -f .npmrc" EXIT
 
-                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
+    NEXUS_TOKEN=\$(echo -n "\${NEXUS_USER}:\${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                cat > .npmrc <<EOF
+    cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}/:_auth=\${NEXUS_TOKEN}
 always-auth=true
 EOF
 
-                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+    echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+    npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
-                npm publish --registry=${NEXUS_URL}
-            '''
+    cat package.json | grep version
+
+    npm publish --registry=${NEXUS_URL}
+"""
         }
     }
 }
