@@ -115,62 +115,36 @@ pipeline {
 
      stage('Publish') {
     steps {
-        unstash 'build-output'
-
-        script {
-
-            def pkgVersion = sh(
-                script: "node -p \"require('./package.json').version\"",
-                returnStdout: true
-            ).trim()
-
-            def gitShort = sh(
-                script: "git rev-parse --short HEAD",
-                returnStdout: true
-            ).trim()
-
-            def artifactVersion = "${pkgVersion}-${gitShort}"
-
-            echo "PACKAGE VERSION: ${pkgVersion}"
-            echo "GIT VERSION: ${gitShort}"
-            echo "ARTIFACT VERSION: ${artifactVersion}"
-
-            env.ARTIFACT_VERSION = artifactVersion
-
-        }
-
-
-        withCredentials([
-            usernamePassword(
-                credentialsId: 'nexus-credentials',
-                usernameVariable: 'NEXUS_USER',
-                passwordVariable: 'NEXUS_PASS'
-            )
-        ]) {
-
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASS'
+        )]) {
             sh '''
                 set -e
 
-                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d "\\n")
+                # Generate base64 token from NEXUS_USER:NEXUS_PASS
+                NEXUS_AUTH=$(printf "%s:%s" "$NEXUS_USER" "$NEXUS_PASS" | base64 | tr -d '\\n')
 
+                # Remove .npmrc after publish (success or failure)
+                trap "rm -f .npmrc" EXIT
+
+                # Configure npm registry authentication
                 cat > .npmrc <<EOF
-registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
-always-auth=true
+registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=$NEXUS_AUTH
+//192.168.0.16:8081/repository/npm-kijanikiosk/:always-auth=true
 EOF
 
+                # Update package version
+                npm version "$ARTIFACT_VERSION" --no-git-tag-version
 
-                echo "Publishing version ${ARTIFACT_VERSION}"
-
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
-
-                npm publish --registry=${NEXUS_URL}
-
+                # Publish package to Nexus
+                npm publish --registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
             '''
         }
     }
 }
-
 }
     post {
 
