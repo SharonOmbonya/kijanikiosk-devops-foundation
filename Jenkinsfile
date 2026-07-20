@@ -119,7 +119,7 @@ pipeline {
             
         
             env.PKG_VERSION = sh(
-            script: "node -p \"JSON.parse(require('fs').readFileSync('package.json')).version\"",
+            script: 'node -p "require(\'./package.json\').version"',
             returnStdout: true
             ).trim()
 
