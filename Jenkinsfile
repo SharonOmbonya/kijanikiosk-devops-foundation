@@ -51,8 +51,20 @@ pipeline {
                         exit 1
                     }
 
-                    echo "Build output: $(ls ${BUILD_DIR} | wc -l) files in ${BUILD_DIR}/"
+                    test "$(find "${BUILD_DIR}" -type f | wc -l)" -gt 0 || {
+                        echo "ERROR: Build directory is empty."
+                        exit 1
+
+                    }
+                                
+                    echo "Build output: $(find "${BUILD_DIR}" -type f | wc -l) files in ${BUILD_DIR}/"
+                    echo "Build output verified."
                 '''
+
+                stash name: 'build-output',
+                      includes: "${BUILD_DIR}/**,package.json"
+
+                
             }
         }
 
@@ -61,6 +73,8 @@ pipeline {
 
                 stage('Test') {
                     steps {
+                        unstash 'build-output'
+
                         echo "Running tests for ${APP_NAME}..."
 
                         sh '''
@@ -108,11 +122,13 @@ pipeline {
             ).trim()
 
             env.GIT_SHORT = sh(
-    script: 'git rev-parse --short HEAD',
-    returnStdout: true
-).trim()
+                script: 'git rev-parse --short HEAD',
+                returnStdout: true
+            ).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+            echo "Artifact version: ${env.ARTIFACT_VERSION}"
+
         }
 
         withCredentials([usernamePassword(
@@ -133,9 +149,13 @@ registry=${NEXUS_URL}
 always-auth=true
 EOF
 
-                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+                echo "Updating package version to ${ARTIFACT_VERSION}"
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                npm version "${ARTIFACT_VERSION}" \
+                    --no-git-tag-version \
+                    --allow-same-version
+
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm publish --registry=${NEXUS_URL}
             '''
@@ -159,8 +179,8 @@ EOF
         }
 
         failure {
-            echo "Pipeline FAILED: ${APP_NAME} build ${BUILD_NUMBER}"
-            echo "Check logs: ${BUILD_URL}"
+            echo "Pipeline FAILED: ${env.APP_NAME} build ${env.BUILD_NUMBER}"
+            echo "Check logs: ${env.BUILD_URL}"
         }
 
         changed {
