@@ -126,9 +126,8 @@ pipeline {
                 returnStdout: true
             ).trim()
 
-            echo "ARTIFACT_VERSION=${ARTIFACT_VERSION}"
+            echo "ARTIFACT_VERSION=${artifactVersion}"
             
-            env.ARTIFACT_VERSION = ARTIFACT_VERSION
 
         }
 
@@ -154,7 +153,7 @@ EOF
 
                 echo "Updating package version to ${ARTIFACT_VERSION}"
 
-                npm version "${ARTIFACT_VERSION}" --no-git-tag-version
+                npm version ${artifactVersion} --no-git-tag-version
 
                 npm publish --registry=${NEXUS_URL}
             '''
