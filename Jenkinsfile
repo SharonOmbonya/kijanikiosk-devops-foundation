@@ -152,10 +152,8 @@ EOF
 
                 echo "Updating package version to ${ARTIFACT_VERSION}"
 
-                npm version "${ARTIFACT_VERSION}" \
-                    --no-git-tag-version \
-                    --allow-same-version
-
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm publish --registry=${NEXUS_URL}
