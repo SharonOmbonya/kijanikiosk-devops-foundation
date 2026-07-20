@@ -101,52 +101,48 @@ pipeline {
      stage('Publish') {
     steps {
         script {
-
-            def pkgVersion = sh(
+        
+            env.PKG_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
             ).trim()
 
-            def gitShort = sh(
-                script: "git rev-parse --short HEAD",
-                returnStdout: true
-            ).trim()
+            env.GIT_SHORT = sh(
+    script: 'git rev-parse --short HEAD',
+    returnStdout: true
+).trim()
 
-            def artifactVersion = "${pkgVersion}-${gitShort}"
+            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+        }
 
-            echo "Publishing version: ${artifactVersion}"
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASS'
+        )]) {
+            sh '''
+                set -e
 
-            withCredentials([usernamePassword(
-                credentialsId: 'nexus-credentials',
-                usernameVariable: 'NEXUS_USER',
-                passwordVariable: 'NEXUS_PASS'
-            )]) {
+                trap "rm -f .npmrc" EXIT
 
-                sh """
-                    set -e
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
-                    trap 'rm -f .npmrc' EXIT
-
-                    NEXUS_TOKEN=\$(echo -n "\${NEXUS_USER}:\${NEXUS_PASS}" | base64 | tr -d '\\n')
-
-                    cat > .npmrc <<EOF
+                cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}/:_auth=\${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
-                    echo "Publishing ${APP_NAME}:${artifactVersion}"
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
-                    npm version ${artifactVersion} --no-git-tag-version
+                npm version "${ARTIFACT_VERSION}" --no-git-tag-version
 
-                    echo "Package version after update:"
-                    grep version package.json
-
-                    npm publish --registry=${NEXUS_URL}
-                """
-            }
+                npm publish --registry=${NEXUS_URL}
+            '''
         }
     }
+}
+
 }
     post {
 
