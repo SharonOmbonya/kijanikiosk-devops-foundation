@@ -159,7 +159,7 @@ EOF
         }
 
         failure {
-            echo "Pipeline FAILED: ${APP_NAME} build ${BUILD_NUMBER}"
+            echo "Pipeline FAILED: ${env.APP_NAME} build ${BUILD_NUMBER}"
             echo "Check logs: ${BUILD_URL}"
         }
 
