@@ -16,8 +16,10 @@ pipeline {
     GIT_SHORT        = ''
     ARTIFACT_VERSION = ''
 
-    NEXUS_URL       = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
+    NEXUS_URL    = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'  
+    }
+
     options {
         timeout(time: 10, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
@@ -111,7 +113,7 @@ pipeline {
             }
         }
 
-      stage('Publish') {
+     stage('Publish') {
     steps {
         script {
         
@@ -121,11 +123,13 @@ pipeline {
             ).trim()
 
             env.GIT_SHORT = sh(
-    script: 'git rev-parse --short HEAD',
-    returnStdout: true
-).trim()
+                script: 'git rev-parse --short HEAD',
+                returnStdout: true
+            ).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+            echo "Artifact version: ${env.ARTIFACT_VERSION}"
+
         }
 
         withCredentials([usernamePassword(
@@ -146,9 +150,13 @@ registry=${NEXUS_URL}
 always-auth=true
 EOF
 
-                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+                echo "Updating package version to ${ARTIFACT_VERSION}"
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                npm version "${ARTIFACT_VERSION}" \
+                    --no-git-tag-version \
+                    --allow-same-version
+
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm publish --registry=${NEXUS_URL}
             '''
@@ -172,8 +180,8 @@ EOF
         }
 
         failure {
-            echo "Pipeline FAILED: ${env.APP_NAME} build ${env.BUILD_NUMBER}"
-            echo "Check logs: ${env.BUILD_URL}"
+            echo "Pipeline FAILED: ${env.APP_NAME} build ${BUILD_NUMBER}"
+            echo "Check logs: ${BUILD_URL}"
         }
 
         changed {
