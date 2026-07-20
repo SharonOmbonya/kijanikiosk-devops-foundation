@@ -135,7 +135,7 @@ EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
-                npm version "$ARTIFACT_VERSION" --no-git-tag-version
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
                 npm publish --registry=${NEXUS_URL}
             '''
@@ -159,7 +159,7 @@ EOF
         }
 
         failure {
-            echo "Pipeline FAILED: ${env.APP_NAME} build ${BUILD_NUMBER}"
+            echo "Pipeline FAILED: ${APP_NAME} build ${BUILD_NUMBER}"
             echo "Check logs: ${BUILD_URL}"
         }
 
