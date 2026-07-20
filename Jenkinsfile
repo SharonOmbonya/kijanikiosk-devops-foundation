@@ -242,4 +242,4 @@ EOF
             echo "Build status changed to ${currentBuild.currentResult}"
         }
     }
-}
+}}
