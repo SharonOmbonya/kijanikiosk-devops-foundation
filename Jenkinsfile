@@ -137,7 +137,7 @@ EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
-                npm version patch--no-git-tag-version
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
                 npm publish --registry=${NEXUS_URL}
             '''
