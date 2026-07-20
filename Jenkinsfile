@@ -14,7 +14,7 @@ pipeline {
 
     PKG_VERSION      = ''
     GIT_SHORT        = ''
-    ARTIFACT_VERSION = ''
+    ARTIFACT_VERSION = '1.0.${BUILD_NUMBER}'
 
     NEXUS_URL        = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
     NEXUS_AUTH_PATH  = '192.168.0.16:8081/repository/npm-kijanikiosk'  
