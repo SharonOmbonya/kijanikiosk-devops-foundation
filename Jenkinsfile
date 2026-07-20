@@ -118,21 +118,15 @@ pipeline {
         unstash 'build-output'
 
         script {
-            env.PKG_VERSION = sh(
+            ARTIFACT_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
-            ).trim()
-
-            env.GIT_SHORT = sh(
+            ).trim() + "-" + sh(
                 script: "git rev-parse --short HEAD",
                 returnStdout: true
             ).trim()
 
-            env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
-
-            echo "PKG_VERSION=${env.PKG_VERSION}"
-            echo "GIT_SHORT=${env.GIT_SHORT}"
-            echo "ARTIFACT_VERSION=${env.ARTIFACT_VERSION}"
+            echo "ARTIFACT_VERSION=${ARTIFACT_VERSION}"
         }
 
         withCredentials([
