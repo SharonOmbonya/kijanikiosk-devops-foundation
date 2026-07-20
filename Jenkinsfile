@@ -155,7 +155,7 @@ EOF
 
                 echo "Updating package version to ${ARTIFACT_VERSION}"
 
-                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+                npm version ''' + "${env.ARTIFACT_VERSION}" + ''' --no-git-tag-version
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
