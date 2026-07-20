@@ -130,8 +130,8 @@ pipeline {
                 NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
-registry=${NEXUS_URL}
-/:_auth=${NEXUS_TOKEN}
+registry=http://192.168.0.16:8081/repository/npm-kijanikiosk/
+//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
