@@ -115,62 +115,58 @@ pipeline {
 
      stage('Publish') {
     steps {
-        unstash 'build-output'  
-        
+        unstash 'build-output'
+
         script {
 
-    def pkgVersion = sh(
-        script: "node -p \"require('./package.json').version\"",
-        returnStdout: true
-    ).trim()
+            def pkgVersion = sh(
+                script: "node -p \"require('./package.json').version\"",
+                returnStdout: true
+            ).trim()
+
+            def gitShort = sh(
+                script: "git rev-parse --short HEAD",
+                returnStdout: true
+            ).trim()
+
+            def artifactVersion = "${pkgVersion}-${gitShort}"
+
+            echo "PACKAGE VERSION: ${pkgVersion}"
+            echo "GIT VERSION: ${gitShort}"
+            echo "ARTIFACT VERSION: ${artifactVersion}"
+
+            env.ARTIFACT_VERSION = artifactVersion
+
+        }
 
 
-    def gitShort = sh(
-        script: "git rev-parse --short HEAD",
-        returnStdout: true
-    ).trim()
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'nexus-credentials',
+                usernameVariable: 'NEXUS_USER',
+                passwordVariable: 'NEXUS_PASS'
+            )
+        ]) {
 
+            sh '''
+                set -e
 
-    def artifactVersion = "${pkgVersion}-${gitShort}"
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d "\\n")
 
-
-    echo "PKG VERSION = ${pkgVersion}"
-    echo "GIT SHORT = ${gitShort}"
-    echo "ARTIFACT VERSION = ${artifactVersion}"
-
-
-    env.ARTIFACT_VERSION = artifactVersion
-
-
-    withCredentials([
-        usernamePassword(
-            credentialsId: 'nexus-credentials',
-            usernameVariable: 'NEXUS_USER',
-            passwordVariable: 'NEXUS_PASS'
-        )
-    ]) {
-
-        sh """
-            set -e
-
-            trap "rm -f .npmrc" EXIT
-
-            NEXUS_TOKEN=\$(echo -n "\${NEXUS_USER}:\${NEXUS_PASS}" | base64 | tr -d '\\n')
-
-            cat > .npmrc <<EOF
+                cat > .npmrc <<EOF
 registry=${NEXUS_URL}
-//${NEXUS_AUTH_PATH}/:_auth=\${NEXUS_TOKEN}
+//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
 
-            echo "Updating package version to ${artifactVersion}"
 
-            npm version ${artifactVersion} --no-git-tag-version
+                echo "Publishing version ${ARTIFACT_VERSION}"
 
-            npm publish --registry=${NEXUS_URL}
-        """
-    }
-}
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+
+                npm publish --registry=${NEXUS_URL}
+
+            '''
         }
     }
 }
