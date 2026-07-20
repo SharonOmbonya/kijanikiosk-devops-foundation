@@ -134,7 +134,7 @@ pipeline {
             usernameVariable: 'NEXUS_USER',
             passwordVariable: 'NEXUS_PASS'
         )]) {
-            sh '''
+            sh """
                 set -e
 
                 trap "rm -f .npmrc" EXIT
@@ -152,7 +152,7 @@ EOF
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
 
                 npm publish --registry=${NEXUS_URL}
-            '''
+            """
         }
     }
 }
