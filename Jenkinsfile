@@ -113,8 +113,6 @@ pipeline {
 ).trim()
 
             env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
-            echo "Publishing version: ${env.ARTIFACT_VERSION}"
-
         }
 
         withCredentials([usernamePassword(
@@ -136,8 +134,6 @@ always-auth=true
 EOF
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
-
-                echo "DEBUG ARTIFACT_VERSION=$ARTIFACT_VERSION"
 
                 npm version "$ARTIFACT_VERSION" --no-git-tag-version
 
