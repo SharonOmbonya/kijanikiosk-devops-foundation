@@ -116,12 +116,11 @@ pipeline {
     steps {
         script {
 
-            sh 'cat package.json'
-
+            
         
             env.PKG_VERSION = sh(
-                script: "node -p \"require('./package.json').version\"",
-                returnStdout: true
+            script: "node -p \"JSON.parse(require('fs').readFileSync('package.json')).version\"",
+            returnStdout: true
             ).trim()
 
             env.GIT_SHORT = sh(
