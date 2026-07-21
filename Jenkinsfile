@@ -35,7 +35,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Installing dependencies for ${APP_NAME}..."
-                sh 'npm run build-does-not-exist'
+                sh 'npm ci'
+
                 echo "Building application..."
                 sh 'npm run build'
 
