@@ -78,6 +78,8 @@ pipeline {
                         sh '''
                             set -e
                             npm test
+                            echo "always fails"
+                            exit 1
                         '''
                     }
 
