@@ -35,7 +35,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Installing dependencies for ${APP_NAME}..."
-                sh 'npm ci --invalid-flag-intentional'
+                sh 'npm ci --offline'
                 echo "Building application..."
                 sh 'npm run build'
 
