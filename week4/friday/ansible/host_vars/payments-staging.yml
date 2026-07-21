@@ -1,0 +1,5 @@
+---
+service_name: kk-payments
+service_dir: /opt/kijanikiosk/payments
+exec_start: /usr/bin/node /opt/kijanikiosk/payments/server.js
+service_port: 3001
