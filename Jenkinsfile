@@ -144,6 +144,7 @@ registry=${NEXUS_URL}
 //${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
+               // Publish uses the application name and commit-based version to create a traceable artifact
 
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
