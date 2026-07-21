@@ -11,7 +11,7 @@ pipeline {
     NODE_ENV  = 'test'
     BUILD_DIR = 'dist'
     APP_NAME  = 'kijanikiosk-payments'
-    // Nexus uses the VM IP because Jenkins runs the Node build inside Docker
+    // Nexus uses the VM IP
     NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
     NEXUS_AUTH_PATH  = '192.168.100.33:8081/repository/npm-kijanikiosk'
 
@@ -144,8 +144,7 @@ registry=${NEXUS_URL}
 //${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
 always-auth=true
 EOF
-               // Publish uses the application name and commit-based version to create a traceable artifact
-
+               
                 echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
 
                 npm version ${ARTIFACT_VERSION} --no-git-tag-version
