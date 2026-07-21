@@ -13,13 +13,13 @@ pipeline {
     APP_NAME  = 'kijanikiosk-payments'
     NEXUS_URL        = 'http://nexus:8081/repository/npm-kijanikiosk/'
     NEXUS_AUTH_PATH  = 'nexus:8081/repository/npm-kijanikiosk'
-    
+
     options {
         timeout(time: 10, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
-
+    }
     stages {
 
         stage('Lint') {
