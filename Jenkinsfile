@@ -35,7 +35,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Installing dependencies for ${APP_NAME}..."
-                sh 'npm ci --offline'
+                sh 'npm run build-does-not-exist'
                 echo "Building application..."
                 sh 'npm run build'
 
