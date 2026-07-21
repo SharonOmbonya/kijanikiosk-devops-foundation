@@ -27,7 +27,8 @@ pipeline {
         stage('Lint') {
             steps {
                 echo "Running lint checks for ${APP_NAME}..."
-               sh 'npm run lint-does-not-exist'            }
+                sh 'npm run lint'
+            }
         }
 
         stage('Build') {
