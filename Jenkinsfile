@@ -11,9 +11,8 @@ pipeline {
     NODE_ENV  = 'test'
     BUILD_DIR = 'dist'
     APP_NAME  = 'kijanikiosk-payments'
-    NEXUS_URL        = 'http://nexus:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH  = 'nexus:8081/repository/npm-kijanikiosk'
-
+    NEXUS_URL = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH = '192.168.0.16:8081/repository/npm-kijanikiosk'
     }
 
     options {
