@@ -12,10 +12,6 @@ pipeline {
     BUILD_DIR = 'dist'
     APP_NAME  = 'kijanikiosk-payments'
 
-    PKG_VERSION      = ''
-    GIT_SHORT        = ''
-    ARTIFACT_VERSION = ''
-
     NEXUS_URL        = 'http://192.168.0.16:8081/repository/npm-kijanikiosk/'
     NEXUS_AUTH_PATH  = '192.168.0.16:8081/repository/npm-kijanikiosk'  
     }
@@ -152,9 +148,7 @@ registry=${NEXUS_URL}
 EOF
 
                 echo "Updating package version to ${ARTIFACT_VERSION}"
-
-                npm version ${artifactVersion} --no-git-tag-version
-
+                npm version ${env.ARTIFACT_VERSION} --no-git-tag-version
                 npm publish --registry=${NEXUS_URL}
             '''
         }
