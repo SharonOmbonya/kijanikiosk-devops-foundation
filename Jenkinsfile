@@ -12,8 +12,8 @@ pipeline {
     BUILD_DIR = 'dist'
     APP_NAME  = 'kijanikiosk-payments'
     // Nexus uses the VM IP
-    NEXUS_URL        = 'http://192.168.100.33:8081/repository/npm-kijanikiosk/'
-    NEXUS_AUTH_PATH  = '192.168.100.33:8081/repository/npm-kijanikiosk'
+    NEXUS_URL        = 'http://192.168.100.16:8081/repository/npm-kijanikiosk/'
+    NEXUS_AUTH_PATH  = '192.168.100.16:8081/repository/npm-kijanikiosk'
 
     }
 
