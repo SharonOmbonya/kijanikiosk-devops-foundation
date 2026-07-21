@@ -114,7 +114,7 @@ pipeline {
         unstash 'build-output'
 
         script {
-            def ARTIFACT_VERSION = sh(
+            env.ARTIFACT_VERSION = sh(
                 script: "node -p \"require('./package.json').version\"",
                 returnStdout: true
             ).trim() + "-" + sh(
@@ -122,39 +122,37 @@ pipeline {
                 returnStdout: true
             ).trim()
 
-            echo "ARTIFACT_VERSION=${artifactVersion}"
-            
-
+            echo "ARTIFACT_VERSION=${env.ARTIFACT_VERSION}"
         }
 
-        withCredentials([
-            usernamePassword(
-                credentialsId: 'nexus-credentials',
-                usernameVariable: 'NEXUS_USER',
-                passwordVariable: 'NEXUS_PASS'
-            )
-        ]) {
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASS'
+        )]) {
+
             sh '''
                 set -e
 
                 trap "rm -f .npmrc" EXIT
 
-                TOKEN=$(echo -n "$NEXUS_USER:$NEXUS_PASS" | base64 | tr -d '\\n')
+                NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64 | tr -d '\\n')
 
                 cat > .npmrc <<EOF
-//192.168.0.16:8081/repository/npm-kijanikiosk/:_auth=${TOKEN}
-always-auth=true
 registry=${NEXUS_URL}
+//${NEXUS_AUTH_PATH}/:_auth=${NEXUS_TOKEN}
+always-auth=true
 EOF
 
-                echo "Updating package version to ${ARTIFACT_VERSION}"
-                npm version ${env.ARTIFACT_VERSION} --no-git-tag-version
+                echo "Publishing ${APP_NAME}:${ARTIFACT_VERSION}"
+
+                npm version ${ARTIFACT_VERSION} --no-git-tag-version
+
                 npm publish --registry=${NEXUS_URL}
             '''
         }
     }
 }
-
 }
     post {
 
