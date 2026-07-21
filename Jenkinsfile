@@ -104,7 +104,7 @@ pipeline {
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: "${BUILD_DIR}/**",
+                archiveArtifacts artifacts: 'nonexistent-dir/**',
                                  fingerprint: true,
                                  onlyIfSuccessful: true
             }
