@@ -1,0 +1,57 @@
+KijaniKiosk Blue/Green Automated Rollback Evidence
+
+Test: Automated rollback after green deployment failure
+
+Initial state:
+- Active environment: green
+- Version serving through proxy: v1.4.0
+- Monitor started before introducing the fault.
+
+Monitor start:
+05:29:06
+[MONITOR] === Post-deployment monitoring: green environment ===
+[MONITOR] Confidence window: 60s | Poll interval: 5s
+
+T0 - Fault introduced:
+05:29:13
+Command executed:
+sudo systemctl stop kk-api-green.service
+
+The green application service was stopped to simulate a failed deployment.
+
+T1 - Rollback triggered:
+05:29:26
+[MONITOR FAIL] ROLLBACK TRIGGERED: 3 consecutive health check failures
+
+Rollback process:
+[ROLLBACK] Rolling back to previous environment: blue
+[ROLLBACK] Calling switch-env.sh blue...
+[ROLLBACK] Rollback to blue successful.
+
+T2 - Rollback confirmed:
+05:29:28
+Post-switch confirmation passed: proxy is routing to blue (port 3000)
+
+Rollback duration:
+15 seconds
+
+Post-rollback verification:
+
+Command:
+sudo cat /opt/kijanikiosk/.active-env
+sudo cat /opt/kijanikiosk/.previous-env
+curl -s http://127.0.0.1:80/health | python3 -m json.tool
+
+Output:
+blue
+green
+{
+    "status": "ok",
+    "version": "v1.3.0",
+    "port": 3000
+}
+
+Status:
+PASS - Automated rollback completed successfully in under 90 seconds.
+
+The monitor detected the failed green deployment automatically and triggered rollback without manual intervention. Traffic was restored to the blue environment running v1.3.0.

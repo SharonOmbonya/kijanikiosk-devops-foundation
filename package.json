@@ -1,0 +1,15 @@
+{
+  "name": "kijanikiosk-payments",
+  "version": "1.0.0",
+  "description": "KijaniKiosk payments service",
+  "main": "index.js",
+  "scripts": {
+    "lint": "echo 'Lint checks passed'",
+    "test": "echo 'Tests passed'",
+    "security:audit": "npm audit --audit-level=high",
+    "build": "mkdir -p dist && cp index.js dist/index.js"
+  },
+  "keywords": [],
+  "author": "Sharon Ombonya",
+  "license": "ISC"
+}

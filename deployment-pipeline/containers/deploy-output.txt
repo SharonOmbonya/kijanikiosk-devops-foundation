@@ -1,0 +1,17 @@
+KijaniKiosk Payments Deployment Evidence
+
+Command:
+kubectl get pods -l app=kk-payments
+
+Output:
+NAME                           READY   STATUS    RESTARTS   AGE
+kk-payments-6cd57796cc-52htr   1/1     Running   0          51m
+kk-payments-6cd57796cc-wrc9z   1/1     Running   0          51m
+
+
+Command:
+kubectl get deployment kk-payments
+
+Output:
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+kk-payments   2/2     2            2           51m

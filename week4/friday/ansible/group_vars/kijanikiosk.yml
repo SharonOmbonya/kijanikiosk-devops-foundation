@@ -1,0 +1,65 @@
+---
+ansible_user: ubuntu
+aansible_ssh_private_key_file: /home/sharon/.ssh/id_rsa
+ansible_python_interpreter: /usr/bin/python3
+
+service_group: kijanikiosk
+base_dir: /opt/kijanikiosk
+log_dir: "{{ base_dir }}/shared/logs"
+shared_log_dir: "{{ base_dir }}/shared/logs"
+config_dir: "{{ base_dir }}/config"
+kijanikiosk_port: 3000
+port: "{{ kijanikiosk_port }}"
+
+
+required_packages:
+  - acl
+  - nginx
+  - curl
+  - unzip
+  - logrotate
+
+service_accounts:
+  - kk-api
+  - kk-payments
+  - kk-logs
+
+kijanikiosk_directories:
+  - path: "{{ base_dir }}/api"
+    owner: kk-api
+    group: kk-api
+    mode: "0750"
+
+  - path: "{{ base_dir }}/payments"
+    owner: kk-payments
+    group: kk-payments
+    mode: "0750"
+
+  - path: "{{ base_dir }}/logs"
+    owner: kk-logs
+    group: kk-logs
+    mode: "0750"
+
+  - path: "{{ base_dir }}/shared/logs"
+    owner: kk-logs
+    group: kijanikiosk
+    mode: "2770"
+
+  - path: "{{ base_dir }}/config"
+    owner: root
+    group: kijanikiosk
+    mode: "0750"
+
+  - path: "{{ base_dir }}/health"
+    owner: root
+    group: kijanikiosk
+    mode: "0750"
+
+journal_storage: persistent
+journal_compress: yes
+journal_max_use: 100M
+journal_max_file_size: 10M
+
+log_user: kk-logs
+log_rotate_count: 7
+log_service: kijanikiosk

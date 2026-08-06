@@ -1,0 +1,33 @@
+[00:04:47] Current environment: blue
+[00:04:47] Target environment:  green
+[00:04:47] Step 1: Verifying green is healthy on port 3001...
+[00:04:47] Pre-switch health check passed: green is healthy
+[00:04:47] Step 2: Writing new nginx active-env configuration...
+[00:04:47] Step 3: Validating nginx configuration...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: the configuration file /etc/nginx/nginx.conf test is successful
+[00:04:47] Step 4: Reloading nginx...
+[00:04:47] nginx reloaded. Traffic now routing to green.
+[00:04:47] Step 5: Confirming switch via proxy health check...
+[00:04:49] Post-switch confirmation passed: proxy is routing to green (port 3001)
+[00:04:49] === Switch to green complete ===
+
+
+Verification:
+
+curl -s http://127.0.0.1:80/health | python3 -m json.tool
+
+{
+    "status":"ok",
+    "version":"v1.4.0",
+    "port":3001
+}
+
+.active-env:
+green
+
+.previous-env:
+blue
+
+nginx active configuration:
+proxy_pass http://kk-api-green;

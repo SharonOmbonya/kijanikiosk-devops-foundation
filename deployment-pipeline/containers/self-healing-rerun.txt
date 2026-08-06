@@ -1,0 +1,41 @@
+KijaniKiosk Payments Self-Healing Evidence
+
+Initial Pods:
+
+Command:
+kubectl get pods -l app=kk-payments
+
+Output:
+NAME                           READY   STATUS    RESTARTS   AGE
+kk-payments-6cd57796cc-52htr   1/1     Running   0          66m
+kk-payments-6cd57796cc-wrc9z   1/1     Running   0          66m
+
+
+T0 (Pod deletion time):
+Thu Aug  6 07:13:14 AM UTC 2026
+
+
+Command:
+kubectl delete pod kk-payments-6cd57796cc-52htr
+
+Output:
+pod "kk-payments-6cd57796cc-52htr" deleted from default namespace
+
+
+Replacement Pod:
+
+Command:
+kubectl get pods -l app=kk-payments
+
+Output:
+NAME                           READY   STATUS    RESTARTS   AGE
+kk-payments-6cd57796cc-n9c8p   1/1     Running   0          61s
+kk-payments-6cd57796cc-wrc9z   1/1     Running   0          68m
+
+
+T1 (replacement Running time):
+Thu Aug  6 07:14:25 AM UTC 2026
+
+
+Recovery time:
+71 seconds

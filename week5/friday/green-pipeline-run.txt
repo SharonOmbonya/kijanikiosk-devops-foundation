@@ -1,0 +1,283 @@
+Started by user Sharon Ombonya
+
+Obtained Jenkinsfile from git https://github.com/SharonOmbonya/kijanikiosk-devops-foundation.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins
+ in /var/jenkins_home/workspace/kijanikiosk-payments
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+using credential nexus-credentials
+Cloning the remote Git repository
+Cloning repository https://github.com/SharonOmbonya/kijanikiosk-devops-foundation.git
+ > git init /var/jenkins_home/workspace/kijanikiosk-payments # timeout=10
+Fetching upstream changes from https://github.com/SharonOmbonya/kijanikiosk-devops-foundation.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials nexus-credentials
+ > git fetch --tags --force --progress -- https://github.com/SharonOmbonya/kijanikiosk-devops-foundation.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/SharonOmbonya/kijanikiosk-devops-foundation.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/feature/week5-ci-pipeline^{commit} # timeout=10
+Checking out Revision c11d22bc0b6c767cf356e98da31f81040b71ea37 (refs/remotes/origin/feature/week5-ci-pipeline)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f c11d22bc0b6c767cf356e98da31f81040b71ea37 # timeout=10
+Commit message: "test: restore lint stage"
+ > git rev-list --no-walk e62c178568cbe50f931dd94fc35fd2ad8a9a0fac # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker inspect -f . node:18.20.8-bookworm
+.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] withDockerContainer
+Jenkins seems to be running inside container de67fd8a4141ba473361d74984521f3f7920f5fee74215c2ec77d27ed8e79a30
+$ docker run -t -d -u 1000:1000 -v /tmp:/tmp -w /var/jenkins_home/workspace/kijanikiosk-payments --volumes-from de67fd8a4141ba473361d74984521f3f7920f5fee74215c2ec77d27ed8e79a30 -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** node:18.20.8-bookworm cat
+$ docker top 5196ad6a74230771e548e296d8b960d984e1844a363d751a59105d8cfb2b20d1 -eo pid,comm
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 10 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Lint)
+[Pipeline] echo
+Running lint checks for kijanikiosk-payments...
+[Pipeline] sh
++ npm run lint
+
+> kijanikiosk-payments@1.0.0 lint
+> echo 'Lint checks passed'
+
+Lint checks passed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] echo
+Installing dependencies for kijanikiosk-payments...
+[Pipeline] sh
++ npm ci
+
+up to date, audited 1 package in 461ms
+
+found 0 vulnerabilities
+[Pipeline] echo
+Building application...
+[Pipeline] sh
++ npm run build
+
+> kijanikiosk-payments@1.0.0 build
+> mkdir -p dist && echo 'KijaniKiosk payment build artifact' > dist/index.txt
+
+[Pipeline] echo
+Verifying build output...
+[Pipeline] sh
++ set -e
++ test -d dist
++ find dist -type f
++ wc -l
++ test 1 -gt 0
++ find dist -type f
++ wc -l
++ echo Build output: 1 files in dist/
+Build output: 1 files in dist/
++ echo Build output verified.
+Build output verified.
+[Pipeline] stash
+Stashed 2 file(s)
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Verify)
+[Pipeline] parallel
+[Pipeline] { (Branch: Test)
+[Pipeline] { (Branch: Security Audit)
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] stage
+[Pipeline] { (Security Audit)
+[Pipeline] unstash
+[Pipeline] echo
+Running security audit...
+[Pipeline] sh
+[Pipeline] echo
+Running tests for kijanikiosk-payments...
+[Pipeline] sh
++ set -e
++ npm audit --audit-level=high
++ set -e
++ npm test
+
+> kijanikiosk-payments@1.0.0 test
+> echo 'Tests passed'
+
+Tests passed
+Post stage
+[Pipeline] junit
+Recording test results
+No test report files were found. Configuration error?
+None of the test reports contained any result
+[Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+found 0 vulnerabilities
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // parallel
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Archive)
+[Pipeline] archiveArtifacts
+Archiving artifacts
+Recording fingerprints
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish)
+[Pipeline] unstash
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ node -p require('./package.json').version
+[Pipeline] sh
++ git rev-parse --short HEAD
+[Pipeline] echo
+ARTIFACT_VERSION=1.0.0-c11d22b
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] withCredentials
+Masking supported pattern matches of $NEXUS_PASS
+[Pipeline] {
+[Pipeline] sh
++ set -e
++ trap rm -f .npmrc EXIT
++ echo -n admin:****
++ base64
++ tr -d \n
++ NEXUS_TOKEN=YWRtaW46****
++ cat
++ echo Publishing kijanikiosk-payments:1.0.0-c11d22b
+Publishing kijanikiosk-payments:1.0.0-c11d22b
++ npm version 1.0.0-c11d22b --no-git-tag-version
+v1.0.0-c11d22b
++ npm publish --registry=http://172.17.0.1:8081/repository/npm-kijanikiosk/
+npm notice
+npm notice package: kijanikiosk-payments@1.0.0-c11d22b
+npm notice Tarball Contents
+npm notice 4.8kB Jenkinsfile
+npm notice 35B dist/index.txt
+npm notice 447B package.json
+npm notice 5.3kB week3/friday/access-model-final.md
+npm notice 4.2kB week3/friday/hardening-decisions.md
+npm notice 3.3kB week3/friday/integration-notes.md
+npm notice 6.3kB week3/friday/kijanikiosk-provision.sh
+npm notice 3.2kB week3/friday/kk-payments-hardening.md
+npm notice 1.8kB week3/friday/post-remediation-verification.txt
+npm notice 3.2kB week3/friday/pre-provisioning-audit.txt
+npm notice 1.1kB week3/friday/provision-run-clean.log
+npm notice 1.1kB week3/friday/provision-run-dirty.log
+npm notice 14.2kB week3/friday/screenshots/dirtylog provision.png
+npm notice 75.1kB week3/friday/screenshots/getfalcoutput.png
+npm notice 27.4kB week3/friday/screenshots/getfalcoutputshealth.png
+npm notice 270.8kB week3/friday/screenshots/kk-paymenthardeningscore.png
+npm notice 110.0kB week3/friday/screenshots/pre-provision.png
+npm notice 88.5kB week3/friday/screenshots/provision-run-clean.png
+npm notice 102.3kB week3/friday/screenshots/provision-run-dirty.png
+npm notice 15.3kB week3/friday/screenshots/run-clean.png
+npm notice 0B week4/friday/ansible/ansible.cfg
+npm notice 1.2kB week4/friday/ansible/group_vars/kijanikiosk.yml
+npm notice 0B week4/friday/ansible/handlers/main.yml
+npm notice 134B week4/friday/ansible/host_vars/api-staging.yml
+npm notice 137B week4/friday/ansible/host_vars/logs-staging.yml
+npm notice 149B week4/friday/ansible/host_vars/payments-staging.yml
+npm notice 399B week4/friday/ansible/inventory.ini
+npm notice 4.6kB week4/friday/ansible/kijanikiosk.yml
+npm notice 152B week4/friday/ansible/templates/journald.conf.j2
+npm notice 944B week4/friday/ansible/templates/kk-payments.service.j2
+npm notice 349B week4/friday/ansible/templates/logrotate.j2
+npm notice 32B week4/friday/ansible/templates/payments-api.env.j2
+npm notice 1.3kB week4/friday/ansible/templates/service.unit.j2
+npm notice 4.0kB week4/friday/destroy-output.txt
+npm notice 459B week4/friday/environment-setup.md
+npm notice 5.8kB week4/friday/hardening-decisions.md
+npm notice 231.4kB week4/friday/overallexposurelevelfforkk-payments.servcie.png
+npm notice 8.8kB week4/friday/pipeline-run1.log
+npm notice 7.1kB week4/friday/pipeline-run2.log
+npm notice 1.1kB week4/friday/pipeline.sh
+npm notice 3.5kB week4/friday/reflection.md
+npm notice 2.4kB week4/friday/terraform/.terraform.lock.hcl
+npm notice 509B week4/friday/terraform/backend.tf
+npm notice 745B week4/friday/terraform/data.tf
+npm notice 220B week4/friday/terraform/locals.tf
+npm notice 256B week4/friday/terraform/main.tf
+npm notice 98B week4/friday/terraform/modules/app_server/main.tf
+npm notice 35B week4/friday/terraform/modules/app_server/outputs.tf
+npm notice 445B week4/friday/terraform/modules/app_server/variables.tf
+npm notice 440B week4/friday/terraform/outputs.tf
+npm notice 630B week4/friday/terraform/variables.tf
+npm notice Tarball Details
+npm notice name: kijanikiosk-payments
+npm notice version: 1.0.0-c11d22b
+npm notice filename: kijanikiosk-payments-1.0.0-c11d22b.tgz
+npm notice package size: 901.7 kB
+npm notice unpacked size: 1.0 MB
+npm notice shasum: a921dbcde9fd589634ae12d2f1ec52c2a409db03
+npm notice integrity: sha512-oqA0T8wv+Q5V3[...]neHzX8E6lKwWw==
+npm notice total files: 51
+npm notice
+npm notice Publishing to http://172.17.0.1:8081/repository/npm-kijanikiosk/ with tag latest and default access
++ kijanikiosk-payments@1.0.0-c11d22b
++ rm -f .npmrc
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] junit
+Recording test results
+No test report files were found. Configuration error?
+None of the test reports contained any result
+[Checks API] No suitable checks publisher found.
+[Pipeline] cleanWs
+[WS-CLEANUP] Deleting project workspace...
+[WS-CLEANUP] Deferred wipeout is used...
+[WS-CLEANUP] done
+[Pipeline] echo
+Build status changed to SUCCESS
+[Pipeline] echo
+Pipeline succeeded: kijanikiosk-payments version 1.0.0-c11d22b
+[Pipeline] echo
+Artifact URL: http://172.17.0.1:8081/repository/npm-kijanikiosk/
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+$ docker stop --time=1 5196ad6a74230771e548e296d8b960d984e1844a363d751a59105d8cfb2b20d1
+$ docker rm -f --volumes 5196ad6a74230771e548e296d8b960d984e1844a363d751a59105d8cfb2b20d1
+[Pipeline] // withDockerContainer
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
