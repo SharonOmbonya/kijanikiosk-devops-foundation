@@ -1,0 +1,51 @@
+apiVersion: apps/v1          # Deployments are in the apps/v1 API group
+kind: Deployment
+
+metadata:
+  name: kk-payments           # Name of the Deployment object
+  labels:
+    app: kk-payments          # Labels on the Deployment itself
+    week: "8"
+
+spec:
+  replicas: 2                 # Run 2 Pods; if either crashes, Deployment recreates it
+
+  selector:
+    matchLabels:
+      app: kk-payments        # Deployment manages Pods with this label
+                              # MUST match template.metadata.labels below
+
+  template:                   # Pod template: describes every Pod this Deployment creates
+    metadata:
+      labels:
+        app: kk-payments      # Must match spec.selector.matchLabels
+        version: "1.0.0"
+
+    spec:
+      imagePullSecrets:
+        - name: kijani-registry-credentials
+          # References the Docker registry secret
+
+      containers:
+        - name: kk-payments
+          image: sharonshaz/kk-payments:1.0.0-7a2b335
+
+          ports:
+            - containerPort: 3001
+              # Documents which port the container listens on
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+
+            - name: PORT
+              value: "3001"
+
+          resources:
+            requests:
+              memory: "64Mi"   # Minimum memory guaranteed
+              cpu: "100m"      # 0.1 CPU
+
+            limits:
+              memory: "256Mi"  # Maximum memory
+              cpu: "500m"      # Maximum 0.5 CPU

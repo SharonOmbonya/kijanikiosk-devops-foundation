@@ -1,0 +1,132 @@
+KijaniKiosk Payments Registry Push Verification
+
+Date: 2026-08-05
+
+========================================
+1. Version tag generation
+========================================
+
+Command executed:
+
+VERSION=$(node -p "require('./package.json').version")
+GITSHA=$(git rev-parse --short HEAD)
+IMAGE_TAG="${VERSION}-${GITSHA}"
+
+echo $IMAGE_TAG
+
+Output:
+
+1.0.0-7a2b335
+
+Result:
+
+PASS - Version tag generated from package.json version and Git short SHA.
+
+
+========================================
+2. Docker image push
+========================================
+
+Image pushed:
+
+docker.io/sharonshaz/kk-payments:1.0.0-7a2b335
+
+
+Command executed:
+
+docker push sharonshaz/kk-payments:1.0.0-7a2b335
+
+Output:
+
+The push refers to repository [docker.io/sharonshaz/kk-payments]
+
+3db4daf9c77f: Pushed
+44136fa355b3: Pushed
+dd71dde834b5: Pushed
+f18232174bc9: Pushed
+1e5a4c89cee5: Pushed
+25ff2da83641: Pushed
+2114eff90e4e: Pushed
+bea475b9ad75: Pushed
+8ddd95de99a7: Pushed
+e336f73e9b3e: Pushed
+2eeae88ff68d: Pushed
+dfe1b541733f: Pushed
+
+Digest:
+
+sha256:c84db89ccb614dbfedd1d1efe62a70f32169c5083cf20e5f1209c8218747e6cc
+
+Result:
+
+PASS - Image successfully pushed to the registry.
+
+
+========================================
+3. Delete local image verification
+========================================
+
+Commands executed:
+
+docker rmi sharonshaz/kk-payments:1.0.0-7a2b335
+
+Output:
+
+Untagged: sharonshaz/kk-payments:1.0.0-7a2b335
+
+
+docker rmi kijanikiosk/kk-payments:1.0.0-7a2b335
+
+Output:
+
+Untagged: kijanikiosk/kk-payments:1.0.0-7a2b335
+Deleted:
+sha256:c84db89ccb614dbfedd1d1efe62a70f32169c5083cf20e5f1209c8218747e6cc
+
+
+Verification:
+
+docker images | grep kk-payments
+
+Output:
+
+(no output)
+
+Result:
+
+PASS - Local image removed. Registry pull test started from a clean local state.
+
+
+========================================
+4. Pull image from registry verification
+========================================
+
+Command executed:
+
+docker pull sharonshaz/kk-payments:1.0.0-7a2b335
+
+Output:
+
+Digest:
+sha256:c84db89ccb614dbfedd1d1efe62a70f32169c5083cf20e5f1209c8218747e6cc
+
+Status:
+Downloaded newer image for sharonshaz/kk-payments:1.0.0-7a2b335
+
+
+Verification:
+
+docker images | grep kk-payments
+
+Output:
+
+sharonshaz/kk-payments:1.0.0-7a2b335
+c84db89ccb61
+181MB
+44.9MB
+
+
+Result:
+
+PASS - Image successfully pulled from the registry after local deletion.
+The registry is confirmed as the source of truth.

@@ -1,0 +1,30 @@
+[00:55:41] [ROLLBACK] Rolling back to previous environment: blue
+[00:55:41] [ROLLBACK] Calling switch-env.sh blue...
+[00:55:41] Current environment: green
+[00:55:41] Target environment:  blue
+[00:55:41] Step 1: Verifying blue is healthy on port 3000...
+[00:55:41] Pre-switch health check passed: blue is healthy
+[00:55:41] Step 2: Writing new nginx active-env configuration...
+[00:55:41] Step 3: Validating nginx configuration...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[00:55:41] Step 4: Reloading nginx...
+[00:55:41] nginx reloaded. Traffic now routing to blue.
+[00:55:41] Step 5: Confirming switch via proxy health check...
+[00:55:43] Post-switch confirmation passed: proxy is routing to blue (port 3000)
+[00:55:43] === Switch to blue complete ===
+[00:55:43] [ROLLBACK] Rollback to blue successful.
+
+Verification:
+$ sudo cat /opt/kijanikiosk/.active-env
+blue
+
+$ sudo cat /opt/kijanikiosk/.previous-env
+green
+
+$ curl -s http://127.0.0.1:80/health | python3 -m json.tool
+{
+    "status": "ok",
+    "version": "v1.3.0",
+    "port": 3000
+}
