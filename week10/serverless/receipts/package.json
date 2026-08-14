@@ -1,0 +1,13 @@
+{
+  "name": "kijani-receipts",
+  "version": "1.0.0",
+  "description": "KijaniKiosk Week 10 serverless receipt chain",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.3"
+  }
+}
