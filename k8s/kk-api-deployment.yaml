@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kk-api
-  namespace: kijani-project
+  namespace: kijani-staging
   annotations:
     kubernetes.io/change-cause: "Initial production-approaching deployment: v1.0.0"
 spec:

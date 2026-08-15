@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kk-payments
-  namespace: kijani-project
+  namespace: kijani-staging
 spec:
   type: ClusterIP
   selector:
