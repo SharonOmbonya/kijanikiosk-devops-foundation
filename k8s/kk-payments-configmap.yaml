@@ -5,8 +5,8 @@ metadata:
   namespace: kijani-project
 
 data:
-  NODE_ENV: "production"
-  DB_HOST: "postgres-prod.kijani.internal"
+  NODE_ENV: "staging"
+  DB_HOST: ""
   DB_PORT: "5432"
   LOG_LEVEL: "warn"
   APP_PORT: "3001"
