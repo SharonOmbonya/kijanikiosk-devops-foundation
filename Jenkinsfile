@@ -2,7 +2,7 @@ pipeline {
 
    agent {
         docker {
-            image 'node:18.20.8-bookworm'
+            image 'kijanikiosk-jenkins-agent:node18-kubectl'
             args '-v /tmp:/tmp'
         }
     }
