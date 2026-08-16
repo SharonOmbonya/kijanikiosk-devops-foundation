@@ -1,6 +1,12 @@
 pipeline {
 
-    agent any
+   agent {
+        docker {
+            image 'node:18.20.8-bookworm'
+            args '-v /tmp:/tmp'
+        }
+    }
+
 
     environment {
         NODE_ENV  = 'test'
