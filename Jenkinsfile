@@ -239,6 +239,10 @@ EOF2
                 sh '''
                     set -e
 
+                    cp /home/node/.kube/config /tmp/jenkins-kubeconfig
+                    sed -i 's|/home/sharon/.minikube|/home/node/.minikube|g' /tmp/jenkins-kubeconfig
+                    export KUBECONFIG=/tmp/jenkins-kubeconfig
+
                     kubectl get deployment kk-payments -n kijani-staging
 
                     kubectl get pods \
