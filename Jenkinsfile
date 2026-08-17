@@ -1,17 +1,19 @@
 pipeline {
 
-   agent {
+    agent {
         docker {
             image 'kijanikiosk-jenkins-agent:node18-kubectl'
-            args '--network minikube -v /tmp:/tmp -v /home/sharon/.kube:/home/node/.kube:ro -v /home/sharon/.minikube:/home/sharon/.minikube:ro'
+            args '--network minikube -v /tmp:/tmp -v /home/sharon/.kube:/home/node/.kube:ro -v /home/sharon/.minikube:/home/node/.minikube:ro'
         }
     }
-
 
     environment {
         NODE_ENV  = 'test'
         BUILD_DIR = 'dist'
         APP_NAME  = 'kijanikiosk-payments'
+
+        // Docker image
+        DOCKER_IMAGE = 'sharonshaz/kk-payments'
 
         // Nexus
         NEXUS_URL = 'http://172.17.0.1:8081/repository/npm-kijanikiosk/'
@@ -154,19 +156,62 @@ EOF2
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image ${DOCKER_IMAGE}:${ARTIFACT_VERSION}..."
+
+                sh '''
+                    set -e
+
+                    docker build \
+                      -f Dockerfile.production \
+                      -t "${DOCKER_IMAGE}:${ARTIFACT_VERSION}" \
+                      .
+
+                    echo "Docker image built successfully:"
+                    docker images "${DOCKER_IMAGE}:${ARTIFACT_VERSION}"
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo "Pushing ${DOCKER_IMAGE}:${ARTIFACT_VERSION}..."
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh '''
+                        set -e
+
+                        echo "${DOCKER_PASS}" | docker login \
+                          -u "${DOCKER_USER}" \
+                          --password-stdin
+
+                        docker push "${DOCKER_IMAGE}:${ARTIFACT_VERSION}"
+
+                        docker logout
+                    '''
+                }
+            }
+        }
+
         /*
          * TRACK A
          * Deploy automatically to the isolated staging namespace.
          */
         stage('Deploy to Staging') {
             steps {
-                echo "Deploying ${APP_NAME} to kijani-staging..."
+                echo "Deploying ${APP_NAME}:${ARTIFACT_VERSION} to kijani-staging..."
 
                 sh '''
                     set -e
 
                     sed \
-                      -e "s|image: .*kk-payments:.*|image: kijanikiosk/kk-payments:${BUILD_NUMBER}|" \
+                      -e "s|image: .*kk-payments:.*|image: ${DOCKER_IMAGE}:${ARTIFACT_VERSION}|" \
                       k8s/kk-payments-deployment.yaml \
                       > /tmp/kk-payments-staging.yaml
 
@@ -209,7 +254,7 @@ EOF2
             steps {
                 script {
                     def approval = input(
-                        message: "Staging smoke test passed. Deploy kk-payments:${BUILD_NUMBER} to production?",
+                        message: "Staging smoke test passed. Deploy kk-payments:${ARTIFACT_VERSION} to production?",
                         ok: 'Deploy',
                         submitter: 'tendo,nia,osei',
                         submitterParameter: 'APPROVED_BY',
@@ -229,14 +274,14 @@ EOF2
 
         stage('Deploy to Production') {
             steps {
-                echo "Deploying ${APP_NAME} to production..."
+                echo "Deploying ${APP_NAME}:${ARTIFACT_VERSION} to production..."
 
                 sh '''
                     set -e
 
                     sed \
                       -e "s/namespace: kijani-staging/namespace: default/" \
-                      -e "s|image: .*kk-payments:.*|image: kijanikiosk/kk-payments:${BUILD_NUMBER}|" \
+                      -e "s|image: .*kk-payments:.*|image: ${DOCKER_IMAGE}:${ARTIFACT_VERSION}|" \
                       k8s/kk-payments-deployment.yaml \
                       > /tmp/kk-payments-production.yaml
 
@@ -261,6 +306,7 @@ EOF2
 
         success {
             echo "Pipeline succeeded: ${env.APP_NAME} version ${env.ARTIFACT_VERSION}"
+            echo "Docker image: ${env.DOCKER_IMAGE}:${env.ARTIFACT_VERSION}"
             echo "Artifact URL: ${env.NEXUS_URL}"
         }
 
