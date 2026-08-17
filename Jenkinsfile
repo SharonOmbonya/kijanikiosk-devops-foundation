@@ -164,7 +164,7 @@ EOF2
                     set -e
 
                     docker build \
-                      -f Dockerfile.production \
+                      -f deployment-pipeline/containers/Dockerfile.production \
                       -t "${DOCKER_IMAGE}:${ARTIFACT_VERSION}" \
                       .
 
