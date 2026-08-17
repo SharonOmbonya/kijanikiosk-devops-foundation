@@ -3,8 +3,7 @@ pipeline {
     agent {
         docker {
             image 'kijanikiosk-jenkins-agent:node18-kubectl'
-            args '--network minikube -v /tmp:/tmp -v /home/sharon/.kube:/home/node/.kube:ro -v /home/sharon/.minikube:/home/node/.minikube:ro'
-        }
+            args '--group-add 1006 --network minikube -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -v /home/sharon/.kube:/home/node/.kube:ro -v /home/sharon/.minikube:/home/node/.minikube:ro'        }
     }
 
     environment {
