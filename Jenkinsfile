@@ -295,28 +295,51 @@ EOF2
             steps {
                 echo "Deploying ${APP_NAME}:${ARTIFACT_VERSION} to production..."
 
-                sh '''
-                    set -e
+        sh '''
+            set -e
 
-                    cp /home/node/.kube/config /tmp/jenkins-kubeconfig
-                    sed -i 's|/home/sharon/.minikube|/home/node/.minikube|g' /tmp/jenkins-kubeconfig
-                    export KUBECONFIG=/tmp/jenkins-kubeconfig
+            cp /home/node/.kube/config /tmp/jenkins-kubeconfig
+            sed -i 's|/home/sharon/.minikube|/home/node/.minikube|g' /tmp/jenkins-kubeconfig
+            export KUBECONFIG=/tmp/jenkins-kubeconfig
 
-                    sed \
-                      -e "s/namespace: kijani-staging/namespace: default/" \
-                      -e "s|image: .*kk-payments:.*|image: ${DOCKER_IMAGE}:${ARTIFACT_VERSION}|" \
-                      k8s/kk-payments-deployment.yaml \
-                      > /tmp/kk-payments-production.yaml
+            echo "Creating/updating production ConfigMap..."
 
-                    kubectl apply -f /tmp/kk-payments-production.yaml
+            kubectl create configmap kk-payments-config \
+              -n default \
+              --from-literal=NODE_ENV=production \
+              --from-literal=DB_HOST="" \
+              --from-literal=DB_PORT=5432 \
+              --from-literal=LOG_LEVEL=warn \
+              --from-literal=APP_PORT=3001 \
+              --from-literal=MAX_CONNECTIONS=10 \
+              --dry-run=client -o yaml | kubectl apply -f -
 
-                    kubectl rollout status deployment/kk-payments \
-                      -n default \
-                      --timeout=120s
-                '''
+            echo "Creating/updating production Secret..."
+
+            kubectl create secret generic kk-payments-secrets \
+              -n default \
+              --from-literal=DB_PASSWORD="" \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+            echo "Preparing production Deployment..."
+
+            sed \
+              -e "s/namespace: kijani-staging/namespace: default/" \
+              -e "s|image: .*kk-payments:.*|image: ${DOCKER_IMAGE}:${ARTIFACT_VERSION}|" \
+              k8s/kk-payments-deployment.yaml \
+              > /tmp/kk-payments-production.yaml
+
+            kubectl apply -f /tmp/kk-payments-production.yaml
+
+            kubectl rollout status deployment/kk-payments \
+              -n default \
+              --timeout=120s
+        '''
+    }
+}
             }
         }
-    }
+    
 
     post {
 
