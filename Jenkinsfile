@@ -298,6 +298,10 @@ EOF2
                 sh '''
                     set -e
 
+                    cp /home/node/.kube/config /tmp/jenkins-kubeconfig
+                    sed -i 's|/home/sharon/.minikube|/home/node/.minikube|g' /tmp/jenkins-kubeconfig
+                    export KUBECONFIG=/tmp/jenkins-kubeconfig
+
                     sed \
                       -e "s/namespace: kijani-staging/namespace: default/" \
                       -e "s|image: .*kk-payments:.*|image: ${DOCKER_IMAGE}:${ARTIFACT_VERSION}|" \
