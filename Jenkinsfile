@@ -20,7 +20,7 @@ pipeline {
     }
 
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 15, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
@@ -259,6 +259,10 @@ EOF2
         }
 
         stage('Approve Production Deployment') {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
+
             steps {
                 script {
                     def approval = input(
@@ -273,9 +277,16 @@ EOF2
                             )
                         ]
                     )
+                    def reason = approval.APPROVAL_REASON?.trim()
+
+                    if (!reason) {
+                        error("Approval reason is required.")
+                    }
 
                     echo "Production deployment approved."
-                    echo "Approval details: ${approval}"
+                    echo "Approved by: ${approval.APPROVED_BY}"
+                    echo "Approval reason: ${reason}"
+                    
                 }
             }
         }
