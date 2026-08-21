@@ -6,7 +6,7 @@ metadata:
 
 data:
   NODE_ENV: "staging"
-  DB_HOST: ""
+  DB_HOST: "postgres-staging"
   DB_PORT: "5432"
   LOG_LEVEL: "warn"
   APP_PORT: "3001"

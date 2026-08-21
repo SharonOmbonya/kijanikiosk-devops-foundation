@@ -307,7 +307,7 @@ EOF2
             kubectl create configmap kk-payments-config \
               -n default \
               --from-literal=NODE_ENV=production \
-              --from-literal=DB_HOST="" \
+              --from-literal=DB_HOST=postgres-production \
               --from-literal=DB_PORT=5432 \
               --from-literal=LOG_LEVEL=warn \
               --from-literal=APP_PORT=3001 \
