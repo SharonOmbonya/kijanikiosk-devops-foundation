@@ -22,6 +22,8 @@ CI/CD, monitoring, and the Week 10 serverless receipt chain.
 - **Docker** – Packages the application into deployable container images.
 - **Jenkins** – Provides the CI/CD pipeline for linting, building, testing,
   security auditing, publishing, container image creation, and deployment.
+- **Nexus repository** – Stores the versioned npm package published by the Jenkins 
+  pipeline.
 - **Kubernetes / Minikube** – Runs the KijaniKiosk workloads locally,
   including staging and production-style namespaces.
 - **Ingress NGINX** – Provides HTTP routing to the API and payment services.
