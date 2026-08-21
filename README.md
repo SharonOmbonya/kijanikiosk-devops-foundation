@@ -386,7 +386,6 @@ This project is a development and educational DevOps environment. The following 
 - Expand monitoring with production dashboards, alerting, log retention, and operational procedures.
 - Further harden the production Kubernetes configuration, including security, resource management, networking, and availability controls.
 - Expand the Week 10 receipt-processing workflow with additional reliability, security, error handling, observability, and operational controls before using it as an enterprise production service.
-
-ngrok authentication tokens and temporary tunnel URLs must never be committed to the repository.
+- ngrok authentication tokens and temporary tunnel URLs must never be committed to the repository.
 
 
