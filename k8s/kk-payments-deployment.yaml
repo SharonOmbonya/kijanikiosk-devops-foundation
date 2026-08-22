@@ -33,7 +33,7 @@ spec:
                 name: kk-payments-secrets
           readinessProbe:
             httpGet:
-              path: /health
+              path: /badhealth
               port: 3001
             initialDelaySeconds: 5
             periodSeconds: 10
