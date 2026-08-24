@@ -353,11 +353,11 @@ serverless.yml
 
 The architecture documentation is located at:
 
-week10/docs/architecture-diagram.png
+docs/architecture-diagram.png
 
 The AI governance documentation is located at:
 
-week10/docs/ai-governance-log.md
+docs/ai-governance-log.md
 
 ## 7. Known Limitations
 
