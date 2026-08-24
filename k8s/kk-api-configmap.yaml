@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kk-api-config
+  namespace: kijani-staging
+
+data:
+  API_PORT: "8080"
+  LOG_LEVEL: "info"
+  NODE_ENV: "staging"
+  PAYMENTS_SERVICE_URL: "http://kk-payments:3001"

@@ -1,0 +1,15 @@
+FROM node:18.20.8-bookworm
+
+USER root
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates docker.io \
+    && groupadd -g 1006 docker-host \
+    && usermod -aG 1006 node \
+    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm kubectl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+USER 1000

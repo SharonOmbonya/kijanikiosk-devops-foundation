@@ -1,0 +1,132 @@
+KijaniKiosk Production Image Build Verification
+
+Date: 2026-08-05
+
+Image:
+kijanikiosk/kk-payments:1.0.0-7a2b335
+
+
+========================================
+1. Docker build --no-cache verification
+========================================
+
+Command executed:
+
+docker build --no-cache \
+  -f Dockerfile.production \
+  -t kijanikiosk/kk-payments:1.0.0-7a2b335 \
+  ../..
+
+[+] Building 3.2s (16/16) FINISHED docker:default
+=> [internal] load build definition from Dockerfile.production
+=> [internal] load metadata for docker.io/library/node:18-alpine
+=> [internal] load .dockerignore
+=> [builder 1/6] FROM docker.io/library/node:18-alpine
+=> [internal] load build context
+=> CACHED [builder 2/6] WORKDIR /app
+=> [production 3/7] RUN addgroup -S kijani && adduser -S kijani -G kijani
+=> [builder 3/6] COPY package.json package-lock.json ./
+=> [builder 4/6] RUN npm ci
+=> [production 4/7] COPY package.json package-lock.json ./
+=> [production 5/7] RUN npm ci --only=production
+=> [builder 5/6] COPY . .
+=> [builder 6/6] RUN npm run build
+=> [production 6/7] COPY --from=builder /app/dist ./dist
+=> [production 7/7] RUN chown -R kijani:kijani /app
+=> exporting to image
+=> naming to docker.io/kijanikiosk/kk-payments:1.0.0-7a2b335
+=> unpacking to docker.io/kijanikiosk/kk-payments:1.0.0-7a2b335
+
+Result:
+
+PASS - Production image built successfully using Dockerfile.production with --no-cache.
+
+========================================
+2. Image size verification
+========================================
+
+Command executed:
+
+docker images kijanikiosk/kk-payments:1.0.0-7a2b335
+
+Output:
+
+IMAGE                                   ID             DISK USAGE   CONTENT SIZE
+kijanikiosk/kk-payments:1.0.0-7a2b335   f508b9d76753   181MB       44.9MB
+
+
+Result:
+
+PASS - Production image content size is 44.9MB, which is below the 100MB requirement.
+
+
+========================================
+3. Non-root user verification
+========================================
+
+Command executed:
+
+docker run --rm kijanikiosk/kk-payments:1.0.0-7a2b335 whoami
+
+Output:
+
+kijani
+
+Result:
+
+PASS - Container runs as the kijani user.
+
+
+========================================
+4. TypeScript compiler verification
+========================================
+
+Command executed:
+
+docker run --rm kijanikiosk/kk-payments:1.0.0-7a2b335 which tsc
+
+Output:
+
+(no output)
+
+Result:
+
+PASS - TypeScript compiler is not included in the production image.
+
+
+========================================
+5. HEALTHCHECK verification
+========================================
+
+Command executed:
+
+docker inspect --format='{{json .Config.Healthcheck}}' kijanikiosk/kk-payments:1.0.0-7a2b335
+
+Output:
+
+{"Test":["CMD-SHELL","wget -qO- http://localhost:3001/health || exit 1"],"Interval":30000000000,"Timeout":5000000000,"StartPeriod":15000000000,"Retries":3}
+
+
+Result:
+
+PASS - HEALTHCHECK is configured.
+Start period: 15 seconds
+Interval: 30 seconds
+Retries: 3
+
+
+========================================
+6. Health endpoint verification
+========================================
+
+Container was started and checked:
+
+curl http://localhost:3001/health
+
+Output:
+
+{"status":"ok","version":"1.0.0"}
+
+Result:
+
+PASS - Application health endpoint responds successfully.

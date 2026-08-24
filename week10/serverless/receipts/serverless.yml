@@ -1,0 +1,45 @@
+service: kijani-receipts
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: af-south-1
+
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    DEFAULT_CURRENCY: KES
+    SERVICE_NAME: ${self:service}
+
+functions:
+  generateReceipt:
+    handler: handler.generateReceipt
+    events:
+      - httpApi:
+          path: /receipts
+          method: POST
+
+  processReceiptUpload:
+    handler: handler.processReceiptUpload
+    events:
+      - s3:
+          bucket: ${self:custom.receiptsBucket}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: receipt-
+            - suffix: .json
+
+plugins:
+  - serverless-offline
+
+custom:
+  receiptsBucket: kk-payments-receipts-${self:provider.stage}
+
+resources:
+  Resources:
+    ReceiptsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.receiptsBucket}

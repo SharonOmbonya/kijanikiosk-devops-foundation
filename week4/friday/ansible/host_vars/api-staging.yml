@@ -1,0 +1,5 @@
+---
+service_name: kk-api
+service_dir: /opt/kijanikiosk/api
+exec_start: /usr/bin/node /opt/kijanikiosk/api/server.js
+service_port: 3000

@@ -1,0 +1,16 @@
+KijaniKiosk Payments Service Evidence
+
+Command:
+kubectl get endpoints kk-payments-service
+
+Output:
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME                  ENDPOINTS                         AGE
+kk-payments-service   10.244.0.4:3001,10.244.0.5:3001   29m
+
+
+Command:
+curl http://$(minikube ip):30001/health
+
+Output:
+{"status":"ok","version":"1.0.0"}
