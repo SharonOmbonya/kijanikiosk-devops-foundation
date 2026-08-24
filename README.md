@@ -14,7 +14,7 @@ operational foundation.
 The project combines infrastructure automation, Kubernetes workloads,
 CI/CD, monitoring, and the Week 10 serverless receipt chain.
 
-![KijaniKiosk Architecture](week10/docs/architecture-diagram.png)
+![KijaniKiosk Architecture](docs/architecture-diagram.png)
 
 ### Major components
 
