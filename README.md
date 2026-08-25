@@ -2,7 +2,7 @@
 
 ## 1. What is this?
 
-KijaniKiosk is a DevOps-focused payment platform demonstrating automated application delivery, infrastructure provisioning, configuration management,containerization, Kubernetes deployment, monitoring, and a serverless receipt-processing workflow.
+KijaniKiosk is a DevOps-focused payment platform demonstrating automated application delivery, infrastructure provisioning, configuration management, containerization, Kubernetes deployment, monitoring, and a serverless receipt-processing workflow.
 
 The project was developed incrementally across the DevOps course and brings the work together into a capstone repository. The Kubernetes environment provides staging and production-style deployment targets, while Terraform, Ansible, Jenkins, Docker, and monitoring tools provide the automation and
 operational foundation.
@@ -14,7 +14,7 @@ operational foundation.
 The project combines infrastructure automation, Kubernetes workloads,
 CI/CD, monitoring, and the Week 10 serverless receipt chain.
 
-![KijaniKiosk Architecture](week10/docs/architecture-diagram.png)
+![KijaniKiosk Architecture](docs/architecture-diagram.png)
 
 ### Major components
 
@@ -46,6 +46,8 @@ kijanikiosk-devops-foundation/
 ├── package.json
 ├── package-lock.json
 ├── index.js
+├── reflection.md
+├── .gitignore
 │
 ├── deployment-pipeline/
 │   ├── bluegreen/
@@ -67,18 +69,42 @@ kijanikiosk-devops-foundation/
 ├── monitoring/
 │   └── kk-payments-alert.yaml
 │
+├── week3/
+│   └── friday/
+│       ├── access-model-final.md
+│       ├── hardening-decisions.md
+│       ├── integration-notes.md
+│       ├── kijanikiosk-provision.sh
+│       ├── kk-payments-hardening.md
+│       ├── post-remediation-verification.txt
+│       ├── pre-provisioning-audit.txt
+│       ├── provision-run-clean.log
+│       ├── provision-run-dirty.log
+│       └── screenshots/
+│
 ├── week4/
 │   └── friday/
 │       ├── terraform/
-│       └── ansible/
+│       ├── ansible/
+│       ├── environment-setup.md
+│       ├── hardening-decisions.md
+│       ├── pipeline.sh
+│       ├── pipeline-run1.log
+│       ├── pipeline-run2.log
+│       ├── destroy-output.txt
+│       ├── overallexposurelevelfforkk-payments.servcie.png
+│       └── reflection.md
+│
+├── week5/
+│   └── friday/
+│       ├── ci-pipeline-board-document.md
+│       ├── credential-audit.txt
+│       ├── fault-injection-log.md
+│       ├── green-pipeline-run.txt
+│       ├── nexus-versions-screenshot.png
+│       └── reflection.md
 │
 ├── week10/
-│   ├── docs/
-│   │   ├── architecture-diagram.png
-│   │   ├── ai-governance-log.md
-│   │   ├── Project-scope-document.odt
-│   │   └── Project-scope-document.pdf
-│   │
 │   └── serverless/
 │       └── receipts/
 │           ├── handler.js
@@ -86,11 +112,17 @@ kijanikiosk-devops-foundation/
 │           ├── package-lock.json
 │           └── serverless.yml
 │
-├── week3/
-├── week5/
-├── dist/
-├── reflection.md
-└── .gitignore
+├── docs/
+│   ├── ai-governance-log.md
+│   ├── architecture-diagram.png
+│   ├── Project-scope-document.pdf
+│   ├── test-plan.md
+│   ├── reflections.md
+│   ├── KijaniKiosk_Capstone_Screenshot_Evidence.pdf
+│   └── Sharon_Ombonya_KijaniKiosk_Capstone.pptx.pdf
+│
+└── dist/
+
 
 Infrastructure locations
 
@@ -102,9 +134,18 @@ Kubernetes manifests: k8s/
 
 Jenkins pipeline: Jenkinsfile
 
+Capstone documentation is located in:
+
+docs/
+├── Project-scope-document.pdf
+├── architecture-diagram.png
+├── ai-governance-log.md
+├── test-plan.md
+├── KijaniKiosk_Capstone_Screenshot_Evidence.pdf
+└── Sharon_Ombonya_KijaniKiosk_Capstone.pptx.pdf
+
 Week 10 serverless implementation: week10/serverless/receipts/
 
-week 10 documentation: week10/docs/
 
 ## 3. Prerequisites
 
@@ -124,7 +165,7 @@ Ansible  core 2.21.2
 
 Jenkins is run using Docker rather than being installed directly on the host.
 
-.The repository also contains the custom Jenkins agent definition:
+The repository also contains the custom Jenkins agent definition:
 
 Dockerfile.jenkins-agent
 
@@ -155,6 +196,7 @@ ansible --version
 Clone the repository and enter the project:
 
 git clone https://github.com/SharonOmbonya/kijanikiosk-devops-foundation
+
 cd kijanikiosk-devops-foundation
 
 Verify that the required tools are installed using the commands in the Prerequisites section.
@@ -353,11 +395,11 @@ serverless.yml
 
 The architecture documentation is located at:
 
-week10/docs/architecture-diagram.png
+docs/architecture-diagram.png
 
 The AI governance documentation is located at:
 
-week10/docs/ai-governance-log.md
+docs/ai-governance-log.md
 
 ## 7. Known Limitations
 
